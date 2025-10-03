@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/pages/homePage.dart';
+import 'pages/homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,15 +8,12 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: Homepage(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.brown, fontFamily: 'Roboto'),
+      home: HomePage(),
     );
   }
 }
