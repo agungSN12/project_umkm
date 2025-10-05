@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/pages/detailPage.dart';
 import '../model/product.dart';
-import 'detailPage.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // controller untuk search field
+  final TextEditingController _searchController = TextEditingController();
+
+  // data awal
+  List<Product> _filteredProducts = products;
+
+  @override
+  void initState() {
+    super.initState();
+    // ketika user mengetik sesuatu, otomatis panggil fungsi filter
+    _searchController.addListener(_filterProducts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterProducts() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredProducts = products;
+      } else {
+        _filteredProducts = products.where((product) {
+          return product.name.toLowerCase().contains(query) ||
+              product.category.toLowerCase().contains(query);
+        }).toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,24 +85,23 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(width: 15),
-
-                        Row(
-                          children: const [SizedBox(width: 15), CartButton()],
-                        ),
+                        const CartButton(),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Search bar
+
+                    // 🔍 Search bar aktif
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
                           icon: Icon(Icons.search, color: Colors.grey),
-                          hintText: "Search",
+                          hintText: "Cari produk...",
                           border: InputBorder.none,
                         ),
                       ),
@@ -85,73 +122,76 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              //mapping data
+              // 🔹 List produk hasil filter
               SizedBox(
                 height: 220,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => DetailPage(product: product),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 150,
-                        margin: const EdgeInsets.only(left: 16, right: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12),
+                child: _filteredProducts.isEmpty
+                    ? const Center(child: Text("Produk tidak ditemukan 😢"))
+                    : ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = _filteredProducts[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailPage(product: product),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 150,
+                              margin: const EdgeInsets.only(left: 16, right: 8),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              child: Image.asset(
-                                product.image,
-                                height: 120,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    product.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(12),
+                                    ),
+                                    child: Image.asset(
+                                      product.image,
+                                      height: 120,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text("Rp ${product.price}"),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text("Rp ${product.price}"),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),

@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.brown, fontFamily: 'Sora'),
-      home: NavigationExample(),
+      home: Navigation(),
     );
   }
 }

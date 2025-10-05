@@ -3,64 +3,106 @@ import 'package:project_umkm/pages/ListProduct.dart';
 import 'package:project_umkm/pages/homePage.dart';
 import 'dart:ui';
 
-class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key});
+class Navigation extends StatefulWidget {
+  const Navigation({super.key});
 
   @override
-  State<NavigationExample> createState() => _NavigationExampleState();
+  State<Navigation> createState() => _NavigationExampleState();
 }
 
-class _NavigationExampleState extends State<NavigationExample> {
+class _NavigationExampleState extends State<Navigation> {
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
           // Halaman
           IndexedStack(
             index: currentPageIndex,
-            children: [HomePage(), Listproduct(), HomePage()],
+            children: [HomePage(), ListMenuPage()],
           ),
-          // NavigationBar blur
+
+          // Floating Navbar
           Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
+            left: 60,
+            right: 60,
+            bottom: 60, // jarak dari bawah
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  color: Colors.brown.withAlpha((0.4 * 255).toInt()),
-                  child: NavigationBar(
-                    selectedIndex: currentPageIndex,
-                    onDestinationSelected: (index) {
-                      setState(() {
-                        currentPageIndex = index;
-                      });
-                    },
-                    indicatorColor: Colors.amber,
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home),
-                        label: 'Home',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.brown.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      NavigationDestination(
-                        icon: Icon(Icons.notifications_sharp),
-                        label: 'Notifications',
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildNavItem(
+                        icon: Icons.home_outlined,
+                        selectedIcon: Icons.home,
+                        label: "Home",
+                        index: 0,
                       ),
-                      NavigationDestination(
-                        icon: Icon(Icons.messenger_sharp),
-                        label: 'Messages',
+                      _buildNavItem(
+                        icon: Icons.shopping_basket_outlined,
+                        selectedIcon: Icons.shopping_basket,
+                        label: "List Product",
+                        index: 1,
                       ),
                     ],
                   ),
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required IconData selectedIcon,
+    required String label,
+    required int index,
+  }) {
+    bool isSelected = currentPageIndex == index;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          currentPageIndex = index;
+        });
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSelected ? selectedIcon : icon,
+            color: isSelected ? Colors.amber : Colors.white,
+            size: 22,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.amber : Colors.white70,
+              fontSize: 11,
             ),
           ),
         ],

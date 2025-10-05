@@ -1,133 +1,25 @@
 import 'package:flutter/material.dart';
-import 'homePage.dart';
+import 'package:project_umkm/model/chartModel.dart';
+import 'package:project_umkm/model/product.dart';
+import 'package:project_umkm/pages/detailPage.dart';
+import 'package:project_umkm/services/firebase_service.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'List Menu',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Arial'),
-      home: const ListMenuPage(),
-    );
-  }
-}
-
-class ListMenuPage extends StatelessWidget {
+class ListMenuPage extends StatefulWidget {
   const ListMenuPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> products = [
-      {
-        "nama": "Kue Klepon",
-        "kategori": "Kue Basah",
-        "harga": 6000,
-        "hargaAsli": 8000,
-        "promo": true,
-        "foto": "asset/images/klepon.png",
-      },
-      {
-        "nama": "Kue Klepon (Jumbo)",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/kue mamay.png",
-      },
-      {
-        "nama": "Kue Santan Kelapa",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/dadarG.png",
-      },
-      {
-        "nama": "Pandan Leaves",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/1.png",
-      },
-      {
-        "nama": "Onde-Onde",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/onde-onde.png",
-      },
-      {
-        "nama": "Kue Talam Betawi",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/talam.png",
-      },
-      {
-        "nama": "Nagasari",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/nagasari.png",
-      },
-      {
-        "nama": "Kue Apem ",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/apem.png",
-      },
-      {
-        "nama": "Kue Lupis",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/lupis.png",
-      },
-      {
-        "nama": "Kue Lapis",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/lapis.png",
-      },
-      {
-        "nama": "Kue Putu",
-        "kategori": "Kue Basah",
-        "harga": 10000,
-        "hargaAsli": 13000,
-        "promo": true,
-        "foto": "asset/images/putu.png",
-      },
-    ];
+  State<ListMenuPage> createState() => _ListMenuPageState();
+}
 
+class _ListMenuPageState extends State<ListMenuPage> {
+  final FirebaseService firebaseService = FirebaseService();
+  int quantity = 1;
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
-          },
-        ),
         title: const Text(
           "List Menu",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -140,6 +32,7 @@ class ListMenuPage extends StatelessWidget {
             const Divider(thickness: 0.8, height: 20),
         itemBuilder: (context, index) {
           final item = products[index];
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
@@ -151,7 +44,7 @@ class ListMenuPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item["nama"],
+                        item.name,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -159,7 +52,7 @@ class ListMenuPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        item["kategori"],
+                        item.category,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -169,7 +62,7 @@ class ListMenuPage extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            "Rp ${item["harga"]}",
+                            "Rp ${item.price}",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -178,32 +71,13 @@ class ListMenuPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            "Rp ${item["hargaAsli"]}",
+                            "Rp 3000",
                             style: const TextStyle(
                               fontSize: 12,
                               decoration: TextDecoration.lineThrough,
                               color: Colors.grey,
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          if (item["promo"])
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text(
-                                "Promo",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -216,13 +90,13 @@ class ListMenuPage extends StatelessWidget {
                   ),
                 ),
 
-                // Bagian kanan (gambar + tombol)
+                // Bagian kanan (gambar + tombol tambah ke keranjang)
                 Column(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.asset(
-                        item["foto"],
+                        item.image,
                         width: 70,
                         height: 70,
                         fit: BoxFit.cover,
@@ -237,8 +111,15 @@ class ListMenuPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {},
-                      child: const Text("Tambah"),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => DetailPage(product: item),
+                          ),
+                        );
+                      },
+                      child: const Text("lihat detail"),
                     ),
                   ],
                 ),

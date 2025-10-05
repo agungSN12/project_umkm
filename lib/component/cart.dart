@@ -16,7 +16,6 @@ class _CartButtonState extends State<CartButton> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseService().getCart(),
       builder: (context, snapshot) {
-        // Hitung total dokumen
         int totalDocs = snapshot.hasData ? snapshot.data!.docs.length : 0;
 
         return Stack(
@@ -30,7 +29,7 @@ class _CartButtonState extends State<CartButton> {
                   direction: PopoverDirection.bottom,
                   backgroundColor: Colors.white,
                   width: 250,
-                  height: 400,
+                  height: 420,
                   arrowHeight: 12,
                   arrowWidth: 24,
                   transitionDuration: const Duration(milliseconds: 180),
@@ -66,118 +65,155 @@ class _CartButtonState extends State<CartButton> {
                                 );
                               }
 
-                              // Ambil data dari Firestore
-
                               final carts = snapshot.data!.docs;
 
-                              return ListView.builder(
-                                itemCount: carts.length,
-                                itemBuilder: (context, index) {
-                                  final data =
-                                      carts[index].data()
-                                          as Map<String, dynamic>;
+                              // 🔹 Hitung total harga semua item
+                              num totalHarga = 0;
+                              for (var doc in carts) {
+                                final data = doc.data() as Map<String, dynamic>;
+                                final harga = (data['price'] ?? 0) as num;
+                                final jumlah = (data['quantity'] ?? 1) as num;
+                                totalHarga += harga * jumlah;
+                              }
 
-                                  return ListTile(
-                                    dense: true,
-                                    leading: const Icon(Icons.fastfood),
-                                    title: Text(data['name'] ?? 'Produk'),
-                                    subtitle: Text(
-                                      "Rp ${data['price']}  x${data['quantity']}",
-                                    ),
+                              return Column(
+                                children: [
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: carts.length,
+                                      itemBuilder: (context, index) {
+                                        final data =
+                                            carts[index].data()
+                                                as Map<String, dynamic>;
 
-                                    trailing: IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                      onPressed: () async {
-                                        // Tampilkan dialog konfirmasi
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            title: const Text("Hapus item"),
-                                            content: const Text(
-                                              "Yakin ingin menghapus produk ini dari keranjang?",
+                                        return ListTile(
+                                          dense: true,
+                                          leading: const Icon(Icons.fastfood),
+                                          title: Text(data['name'] ?? 'Produk'),
+                                          subtitle: Text(
+                                            "Rp ${data['price']}  x${data['quantity']}",
+                                          ),
+                                          trailing: IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
                                             ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(ctx, false),
-                                                child: const Text("Batal"),
-                                              ),
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(ctx, true),
-                                                child: const Text(
-                                                  "Hapus",
-                                                  style: TextStyle(
-                                                    color: Colors.red,
+                                            onPressed: () async {
+                                              final confirm = await showDialog<bool>(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                  title: const Text(
+                                                    "Hapus item",
                                                   ),
+                                                  content: const Text(
+                                                    "Yakin ingin menghapus produk ini dari keranjang?",
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                            ctx,
+                                                            false,
+                                                          ),
+                                                      child: const Text(
+                                                        "Batal",
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                            ctx,
+                                                            true,
+                                                          ),
+                                                      child: const Text(
+                                                        "Hapus",
+                                                        style: TextStyle(
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                            ],
+                                              );
+
+                                              if (confirm == true) {
+                                                showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (_) => const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
+                                                );
+
+                                                try {
+                                                  FirebaseService().deleteCart(
+                                                    data["productId"],
+                                                  );
+                                                } catch (e) {
+                                                  print('Gagal hapus: $e');
+                                                } finally {
+                                                  if (Navigator.of(
+                                                    context,
+                                                  ).canPop()) {
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                }
+
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                        'Item berhasil dihapus 🗑️',
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            },
                                           ),
                                         );
-
-                                        if (confirm == true) {
-                                          // Tampilkan loading
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (_) => const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          );
-
-                                          try {
-                                            // Jalankan delete
-                                            FirebaseService().deleteCart(
-                                              data["productId"],
-                                            );
-                                          } catch (e) {
-                                            print('Gagal hapus: $e');
-                                          } finally {
-                                            // Tutup loading dialog
-                                            if (Navigator.of(context).canPop())
-                                              Navigator.of(context).pop();
-                                          }
-
-                                          // Snackbar notifikasi
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Item berhasil dihapus 🗑️',
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        }
                                       },
                                     ),
-                                  );
-                                },
+                                  ),
+
+                                  const Divider(),
+
+                                  // 🔹 Tampilkan total harga di bawah
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      "Total: Rp ${totalHarga.toStringAsFixed(0)}",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  Center(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF6D4C41,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text(
+                                        "Checkout",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               );
                             },
-                          ),
-                        ),
-
-                        const Divider(),
-                        Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6D4C41),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              "Checkout",
-                              style: TextStyle(color: Colors.white),
-                            ),
                           ),
                         ),
                       ],
@@ -187,7 +223,7 @@ class _CartButtonState extends State<CartButton> {
               },
             ),
 
-            // 🔴 Badge jumlah item troli
+            // 🔴 Badge jumlah item
             if (totalDocs > 0)
               Positioned(
                 right: 6,
