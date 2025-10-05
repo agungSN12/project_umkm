@@ -1,40 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:project_umkm/component/cart.dart';
 import '../model/product.dart';
 import 'detailPage.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-
-  final List<Product> products = [
-    Product(
-      name: "Kue Lapis",
-      category: "Kue Basah",
-      image: "asset/images/kue mamay.png",
-      description:
-          "Lapis Legit Aduhay\n"
-          "Kategori: Kue Basah Tradisional\n"
-          "Berat/Isi: 250 gr (±12 pcs)\n\n"
-          "Komposisi: Tepung ketan, gula merah, kelapa parut, garam\n"
-          "Rasa & Tekstur: Lembut, kenyal, manis meleleh saat digigit\n\n"
-          "Tanggal Produksi: Hari pengiriman\n"
-          "Expired / Ketahanan: 1 hari suhu ruang, 2 hari di kulkas",
-      price: 6000,
-    ),
-    Product(
-      name: "Kelepon",
-      category: "Kue Tradisional",
-      image: "asset/images/klepon.png",
-      description:
-          "Klepon Ketan Isi Gula Merah\n"
-          "Kategori: Kue Basah Tradisional\n"
-          "Berat/Isi: 250 gr (±12 pcs)\n\n"
-          "Komposisi: Tepung ketan, gula merah, kelapa parut, garam\n"
-          "Rasa & Tekstur: Lembut, kenyal, manis meleleh saat digigit\n\n"
-          "Tanggal Produksi: Hari pengiriman\n"
-          "Expired / Ketahanan: 1 hari suhu ruang, 2 hari di kulkas",
-      price: 15000,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +17,7 @@ class HomePage extends StatelessWidget {
             children: [
               // 🔹 Header
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(23),
                 decoration: const BoxDecoration(
                   color: Color(0xFF6D4C41), // warna coklat
                   borderRadius: BorderRadius.only(
@@ -60,15 +30,10 @@ class HomePage extends StatelessWidget {
                     // Baris profil + tombol visit me + call me
                     Row(
                       children: [
-                        const CircleAvatar(
-                          radius: 25,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.person, color: Colors.brown),
-                        ),
                         const SizedBox(width: 10),
                         const Expanded(
                           child: Text(
-                            "Hai Agung !",
+                            "Kiwari Baker",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -78,24 +43,13 @@ class HomePage extends StatelessWidget {
                         ),
                         Row(
                           children: const [
-                            Icon(Icons.photo_camera, color: Colors.white),
-                            SizedBox(width: 5),
-                            Text(
-                              "visit me",
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            Icon(Icons.phone, color: Colors.white),
                           ],
                         ),
                         const SizedBox(width: 15),
+
                         Row(
-                          children: const [
-                            Icon(Icons.phone, color: Colors.white),
-                            SizedBox(width: 5),
-                            Text(
-                              "call me",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
+                          children: const [SizedBox(width: 15), CartButton()],
                         ),
                       ],
                     ),
@@ -131,6 +85,7 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
+              //mapping data
               SizedBox(
                 height: 220,
                 child: ListView.builder(

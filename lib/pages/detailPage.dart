@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/model/chartModel.dart';
+import 'package:project_umkm/services/firebase_service.dart';
 import '../model/product.dart';
-import 'homePage.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends StatefulWidget {
   final Product product;
 
   const DetailPage({super.key, required this.product});
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  int quantity = 1;
+
+  FirebaseService firebaseService = new FirebaseService();
+
+  void _increment() {
+    setState(() => quantity++);
+  }
+
+  void _decrement() {
+    if (quantity > 1) {
+      setState(() => quantity--);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +37,7 @@ class DetailPage extends StatelessWidget {
             Stack(
               children: [
                 Image.asset(
-                  product.image,
+                  widget.product.image,
                   width: double.infinity,
                   height: 250,
                   fit: BoxFit.cover,
@@ -44,6 +64,7 @@ class DetailPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                Positioned(top: 40, right: 80, child: CartButton()),
               ],
             ),
             Padding(
@@ -52,12 +73,12 @@ class DetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.category,
+                    widget.product.category,
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    product.name,
+                    widget.product.name,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -85,16 +106,51 @@ class DetailPage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text(product.description),
+                  Text(widget.product.description),
                   const SizedBox(height: 20),
-                  Text(
-                    "Rp. ${product.price}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Harga di kiri
+                      Text(
+                        "Rp. ${widget.product.price}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.brown,
+                        ),
+                      ),
+
+                      // Quantity di kanan
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: _decrement,
+                                ),
+                                Text(
+                                  quantity.toString(),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: _increment,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+
                   const SizedBox(height: 20),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -102,7 +158,41 @@ class DetailPage extends StatelessWidget {
                       backgroundColor: Colors.brown,
                       minimumSize: const Size(double.infinity, 50),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      try {
+                        Cart cart = new Cart(
+                          id: widget.product.Id,
+                          productId: widget.product.productId,
+                          name: widget.product.name,
+                          image: widget.product.image,
+                          price: widget.product.price,
+                          quantity: quantity,
+                        );
+                        firebaseService.addCart(cart);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Produk berhasil ditambahkan ke keranjang 🛒",
+                              ),
+                              duration: Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (error) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Gagal menambahkan produk: $error"),
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
                     child: const Text("Add to Cart"),
                   ),
                 ],
