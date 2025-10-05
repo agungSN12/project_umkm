@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/component/whatsappPopup.dart';
 import 'package:project_umkm/model/chartModel.dart';
 import 'package:project_umkm/services/firebase_service.dart';
 import '../model/product.dart';
@@ -86,17 +87,22 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                   const SizedBox(height: 10),
                   Row(
-                    children: const [
+                    children: [
                       CircleAvatar(
                         backgroundImage: AssetImage("asset/images/abidin.png"),
                       ),
                       SizedBox(width: 10),
                       Text("Muhammad Zaenal Abidin - Cook"),
                       SizedBox(width: 70),
-                      Icon(
-                        Icons.phone,
-                        color: Color.fromARGB(255, 182, 108, 11),
-                        size: 30,
+                      IconButton(
+                        onPressed: () {
+                          WhatsappPopup.show(context);
+                        },
+                        icon: Icon(
+                          Icons.phone,
+                          color: Color.fromARGB(255, 182, 108, 11),
+                          size: 30,
+                        ),
                       ),
                     ],
                   ),

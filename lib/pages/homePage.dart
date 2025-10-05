@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/component/whatsappPopup.dart';
 import 'package:project_umkm/pages/detailPage.dart';
+
 import '../model/product.dart';
 
 class HomePage extends StatefulWidget {
@@ -80,8 +82,23 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Row(
-                          children: const [
-                            Icon(Icons.phone, color: Colors.white),
+                          children: [
+                            const SizedBox(width: 10),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                WhatsappPopup.show(context);
+                              },
+                              icon: const Icon(Icons.call, color: Colors.white),
+                              label: const Text("Chat WA"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(width: 15),
