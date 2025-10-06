@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatComponent extends StatefulWidget {
   final String initialMessage;
-  const ChatPage({super.key, required this.initialMessage});
+  const ChatComponent({super.key, required this.initialMessage});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatComponent> createState() => _ChatComponentState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatComponentState extends State<ChatComponent> {
   final List<Map<String, String>> messages =
       []; // {role: "user"/"bot", text: ""}
   final TextEditingController _controller = TextEditingController();

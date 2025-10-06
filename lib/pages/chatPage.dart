@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/ChatPage.dart';
+import 'package:project_umkm/component/ChatComponent.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +35,7 @@ class _AssistantPageState extends State<AssistantPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatPage(initialMessage: firstMessage),
+          builder: (_) => ChatComponent(initialMessage: firstMessage),
         ),
       );
     }
@@ -57,9 +57,6 @@ class _AssistantPageState extends State<AssistantPage> {
               ),
             ),
           ),
-
-          // 🔳 Overlay agar teks terbaca
-          // Container(color: Colors.black.withOpacity(0.3)),
 
           // ✨ Konten utama
           SafeArea(
