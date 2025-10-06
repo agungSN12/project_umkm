@@ -125,7 +125,10 @@ class _AssistantPageState extends State<AssistantPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.send, color: Colors.red),
+                          icon: const Icon(
+                            Icons.send,
+                            color: Color(0xFF6D4C41),
+                          ),
                           onPressed: _sendMessage,
                         ),
                       ],
@@ -179,7 +182,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chat dengan Rere"),
+        title: const Text("Chat dengan Bot"),
         foregroundColor: Colors.white,
         backgroundColor: Color(0xFF6D4C41),
       ),
