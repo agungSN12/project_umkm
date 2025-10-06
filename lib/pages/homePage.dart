@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/cart.dart';
-import 'package:project_umkm/component/whatsappPopup.dart';
-import 'package:project_umkm/pages/detailPage.dart';
+import 'package:project_umkm/component/Contact.dart';
 
+import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/model/paket.dart';
+import 'package:project_umkm/pages/detailPage.dart';
+import 'package:project_umkm/component/notification.dart';
+import 'package:project_umkm/pages/detailpagePaket.dart';
 import '../model/product.dart';
 
 class HomePage extends StatefulWidget {
@@ -48,6 +51,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, String>> banners = [
+      {
+        'image': 'assets/banner1.jpg',
+        'text': 'Promo Kue Klepon, beli 2 gratis 1 🎉',
+      },
+      {
+        'image': 'assets/banner2.jpg',
+        'text': 'Pesanan kamu sedang diproses 🍰',
+      },
+      {
+        'image': 'assets/banner3.jpg',
+        'text': 'Dapatkan diskon 10% untuk pembelian pertama 💸',
+      },
+    ];
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -71,6 +88,7 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       children: [
                         const SizedBox(width: 10),
+                        const NotificationPopup(),
                         const Expanded(
                           child: Text(
                             "Kiwari Baker",
@@ -84,14 +102,18 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             const SizedBox(width: 10),
-                            ElevatedButton.icon(
+                            IconButton(
                               onPressed: () {
-                                WhatsappPopup.show(context);
+                                Contact.show(
+                                  context,
+                                  title: "Hubungi via WhatsApp",
+                                  label: "Nomor WhatsApp Toko:",
+                                  value: "628143653225",
+                                  accentColor: Colors.green,
+                                );
                               },
                               icon: const Icon(Icons.call, color: Colors.white),
-                              label: const Text("Chat WA"),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.amber,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
@@ -127,6 +149,28 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
+              SizedBox(
+                height: 180, // atur tinggi banner sesuai kebutuhan
+                child: CarouselView(
+                  itemExtent: MediaQuery.of(context).size.width,
+                  // biar full ke kiri-kanan
+                  children: const [
+                    Image(
+                      image: AssetImage("asset/images/apem.png"),
+                      fit: BoxFit.cover,
+                    ),
+                    Image(
+                      image: AssetImage("asset/images/lupis.png"),
+                      fit: BoxFit.cover,
+                    ),
+                    Image(
+                      image: AssetImage("asset/images/onde-onde.png"),
+                      fit: BoxFit.cover,
+                    ),
+                  ],
+                ),
+              ),
+
               const SizedBox(height: 20),
 
               // 🔹 Best Seller Produk
@@ -141,7 +185,7 @@ class _HomePageState extends State<HomePage> {
 
               // 🔹 List produk hasil filter
               SizedBox(
-                height: 220,
+                height: 180,
                 child: _filteredProducts.isEmpty
                     ? const Center(child: Text("Produk tidak ditemukan 😢"))
                     : ListView.builder(
@@ -209,6 +253,56 @@ class _HomePageState extends State<HomePage> {
                           );
                         },
                       ),
+              ),
+
+              SizedBox(height: 5),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Text(
+                  "Paket Produk",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: PaketProduct.length,
+                  itemBuilder: (context, index) {
+                    final paket = PaketProduct[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DetailPagePaket(PaketProduct: paket),
+                          ),
+                        );
+                      },
+
+                      child: (Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 170,
+                        child: Stack(
+                          children: [
+                            Image.asset(paket.image, fit: BoxFit.cover),
+                            Container(color: Colors.black.withOpacity(0.3)),
+                            Center(
+                              child: Text(
+                                paket.name, // langsung pakai variabel
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                    );
+                  },
+                ),
               ),
             ],
           ),

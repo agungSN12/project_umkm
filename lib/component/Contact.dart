@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // untuk Clipboard
+import 'package:flutter/services.dart';
 
-class WhatsappPopup {
-  static const String phoneNumber = "628143653225";
-  static const String message =
-      "Halo! Saya ingin memesan produk dari Kiwari Baker ";
-
-  static void show(BuildContext context) {
+class Contact {
+  static void show(
+    BuildContext context, {
+    required String title, // contoh: "Hubungi via WhatsApp"
+    required String label, // contoh: "Nomor WhatsApp Toko:"
+    required String value, // contoh: "628143653225"
+    Color accentColor = Colors.green, // warna utama opsional
+  }) {
     showDialog(
       context: context,
       builder: (context) {
@@ -14,47 +16,39 @@ class WhatsappPopup {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          title: const Text(
-            "Hubungi via WhatsApp",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Nomor WhatsApp Toko:",
-                style: TextStyle(fontSize: 14),
-              ),
+              Text(label, style: const TextStyle(fontSize: 14)),
               const SizedBox(height: 8),
               SelectableText(
-                "+$phoneNumber",
-                style: const TextStyle(
+                value,
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: accentColor,
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                message,
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Clipboard.setData(const ClipboardData(text: phoneNumber));
+                Clipboard.setData(ClipboardData(text: value));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Nomor WhatsApp disalin ✅"),
+                    content: Text("Data berhasil disalin ✅"),
                     duration: Duration(seconds: 2),
                   ),
                 );
                 Navigator.pop(context);
               },
-              child: const Text("Salin Nomor"),
+              child: const Text("Salin"),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),

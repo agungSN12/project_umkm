@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/cart.dart';
 import 'package:project_umkm/component/Contact.dart';
+import 'package:project_umkm/component/cart.dart';
+
 import 'package:project_umkm/model/chartModel.dart';
+import 'package:project_umkm/model/paket.dart';
 import 'package:project_umkm/services/firebase_service.dart';
 import '../model/product.dart';
 
-class DetailPage extends StatefulWidget {
-  final Product product;
+class DetailPagePaket extends StatefulWidget {
+  final Paket PaketProduct;
 
-  const DetailPage({super.key, required this.product});
+  const DetailPagePaket({super.key, required this.PaketProduct});
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  State<DetailPagePaket> createState() => _DetailPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _DetailPageState extends State<DetailPagePaket> {
   int quantity = 1;
 
   FirebaseService firebaseService = new FirebaseService();
@@ -38,7 +40,7 @@ class _DetailPageState extends State<DetailPage> {
             Stack(
               children: [
                 Image.asset(
-                  widget.product.image,
+                  widget.PaketProduct.image,
                   width: double.infinity,
                   height: 250,
                   fit: BoxFit.cover,
@@ -74,12 +76,12 @@ class _DetailPageState extends State<DetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.product.category,
+                    widget.PaketProduct.category,
                     style: const TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.product.name,
+                    widget.PaketProduct.name,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -118,14 +120,14 @@ class _DetailPageState extends State<DetailPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Text(widget.product.description),
+                  Text(widget.PaketProduct.description),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Harga di kiri
                       Text(
-                        "Rp. ${widget.product.price}",
+                        "Rp. ${widget.PaketProduct.price}",
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -173,11 +175,11 @@ class _DetailPageState extends State<DetailPage> {
                     onPressed: () {
                       try {
                         Cart cart = new Cart(
-                          id: widget.product.Id,
-                          productId: widget.product.productId,
-                          name: widget.product.name,
-                          image: widget.product.image,
-                          price: widget.product.price,
+                          id: widget.PaketProduct.Id,
+                          productId: widget.PaketProduct.productId,
+                          name: widget.PaketProduct.name,
+                          image: widget.PaketProduct.image,
+                          price: widget.PaketProduct.price,
                           quantity: quantity,
                         );
                         firebaseService.addCart(cart);
