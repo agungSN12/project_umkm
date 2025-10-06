@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/pages/ListProduct.dart';
+import 'package:project_umkm/pages/chatPage.dart';
 import 'package:project_umkm/pages/homePage.dart';
 import 'dart:ui';
 
@@ -23,7 +24,12 @@ class _NavigationExampleState extends State<Navigation> {
           // Halaman
           IndexedStack(
             index: currentPageIndex,
-            children: [HomePage(), ListMenuPage(), ProfilePage()],
+            children: [
+              HomePage(),
+              ListMenuPage(),
+              AssistantPage(),
+              ProfilePage(),
+            ],
           ),
 
           // Floating Navbar

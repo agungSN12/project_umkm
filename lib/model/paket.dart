@@ -24,7 +24,7 @@ final List<Paket> PaketProduct = [
     productId: "e001",
     name: "Paket Maulid",
     category: "Kue Basah",
-    image: "asset/images/nagasari.png",
+    image: "asset/images/12.png",
     description:
         "Isi 12 pcs Kue Klepon, 10 pcs Onde-Onde, dan 8 pcs Kue Apem.\nCocok untuk peringatan Maulid Nabi atau acara keagamaan kecil.",
     price: 50000,
@@ -34,7 +34,7 @@ final List<Paket> PaketProduct = [
     productId: "e002",
     name: "Paket Arisan",
     category: "Kue Basah",
-    image: "asset/images/lapis.png",
+    image: "asset/images/13.png",
     description:
         "Isi 10 pcs Kue Lapis, 8 pcs Dadar Gulung, dan 6 pcs Nagasari.\nCocok untuk snack box arisan keluarga atau komunitas.",
     price: 60000,
@@ -44,7 +44,7 @@ final List<Paket> PaketProduct = [
     productId: "e003",
     name: "Paket Ulang Tahun",
     category: "Kue Basah",
-    image: "asset/images/apem.png",
+    image: "asset/images/14.png",
     description:
         "Isi 12 pcs Kue Apem, 10 pcs Pandan Leaves, dan 8 pcs Kue Talam.\nCocok untuk pesta ulang tahun anak-anak atau dewasa.",
     price: 70000,
