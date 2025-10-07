@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/component/cart.dart';
-import 'package:project_umkm/component/whatsappPopup.dart';
+import 'package:project_umkm/component/Contact.dart';
 import 'package:project_umkm/model/chartModel.dart';
 import 'package:project_umkm/services/firebase_service.dart';
 import '../model/product.dart';
@@ -96,7 +96,13 @@ class _DetailPageState extends State<DetailPage> {
                       SizedBox(width: 70),
                       IconButton(
                         onPressed: () {
-                          WhatsappPopup.show(context);
+                          Contact.show(
+                            context,
+                            title: "Hubungi via WhatsApp",
+                            label: "Nomor WhatsApp Toko:",
+                            value: "628143653225",
+                            accentColor: Colors.green,
+                          );
                         },
                         icon: Icon(
                           Icons.phone,

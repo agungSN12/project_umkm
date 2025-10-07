@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_umkm/component/ChatComponent.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +35,7 @@ class _AssistantPageState extends State<AssistantPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatPage(initialMessage: firstMessage),
+          builder: (_) => ChatComponent(initialMessage: firstMessage),
         ),
       );
     }
@@ -57,9 +58,6 @@ class _AssistantPageState extends State<AssistantPage> {
             ),
           ),
 
-          // 🔳 Overlay agar teks terbaca
-          // Container(color: Colors.black.withOpacity(0.3)),
-
           // ✨ Konten utama
           SafeArea(
             child: Padding(
@@ -71,7 +69,7 @@ class _AssistantPageState extends State<AssistantPage> {
 
                   // Greeting Section
                   const Text(
-                    "Hi Agung 👋",
+                    "Hi Customer 👋",
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -149,90 +147,3 @@ class _AssistantPageState extends State<AssistantPage> {
 }
 
 // 💭 Halaman Chat
-class ChatPage extends StatefulWidget {
-  final String initialMessage;
-  const ChatPage({super.key, required this.initialMessage});
-
-  @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  final List<String> messages = [];
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.initialMessage.isNotEmpty) {
-      messages.add(widget.initialMessage);
-    }
-  }
-
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        messages.add(_controller.text);
-      });
-      _controller.clear();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Chat dengan Bot"),
-        foregroundColor: Colors.white,
-        backgroundColor: Color(0xFF6D4C41),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) => ListTile(
-                title: Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 216, 153, 81),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(messages[index]),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: "Tulis pesan...",
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFF6D4C41)),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

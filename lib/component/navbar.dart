@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/pages/ListProduct.dart';
+import 'package:project_umkm/pages/chatPage.dart';
 import 'package:project_umkm/pages/homePage.dart';
 import 'dart:ui';
+
+import 'package:project_umkm/pages/profilePage.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({super.key});
@@ -21,7 +24,12 @@ class _NavigationExampleState extends State<Navigation> {
           // Halaman
           IndexedStack(
             index: currentPageIndex,
-            children: [HomePage(), ListMenuPage()],
+            children: [
+              HomePage(),
+              ListMenuPage(),
+              AssistantPage(),
+              ProfilePage(),
+            ],
           ),
 
           // Floating Navbar
@@ -63,6 +71,18 @@ class _NavigationExampleState extends State<Navigation> {
                         selectedIcon: Icons.shopping_basket,
                         label: "List Product",
                         index: 1,
+                      ),
+                      _buildNavItem(
+                        icon: Icons.chat_bubble,
+                        selectedIcon: Icons.chat_bubble,
+                        label: "Chat",
+                        index: 2,
+                      ),
+                      _buildNavItem(
+                        icon: Icons.person,
+                        selectedIcon: Icons.person,
+                        label: "profile",
+                        index: 3,
                       ),
                     ],
                   ),

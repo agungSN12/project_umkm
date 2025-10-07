@@ -29,12 +29,15 @@ class _CartButtonState extends State<CartButton> {
                   direction: PopoverDirection.bottom,
                   backgroundColor: Colors.white,
                   width: 250,
-                  height: 420,
+                  height: 500,
                   arrowHeight: 12,
                   arrowWidth: 24,
                   transitionDuration: const Duration(milliseconds: 180),
                   bodyBuilder: (context) => Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -46,7 +49,6 @@ class _CartButtonState extends State<CartButton> {
                           ),
                         ),
                         const Divider(),
-
                         Expanded(
                           child: StreamBuilder<QuerySnapshot>(
                             stream: FirebaseService().getCart(),
@@ -78,7 +80,7 @@ class _CartButtonState extends State<CartButton> {
 
                               return Column(
                                 children: [
-                                  Expanded(
+                                  Flexible(
                                     child: ListView.builder(
                                       itemCount: carts.length,
                                       itemBuilder: (context, index) {
@@ -88,7 +90,14 @@ class _CartButtonState extends State<CartButton> {
 
                                         return ListTile(
                                           dense: true,
-                                          leading: const Icon(Icons.fastfood),
+                                          leading: data['image'] != null
+                                              ? Image.asset(
+                                                  data['image'],
+                                                  width: 40,
+                                                  height: 40,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : const Icon(Icons.fastfood),
                                           title: Text(data['name'] ?? 'Produk'),
                                           subtitle: Text(
                                             "Rp ${data['price']}  x${data['quantity']}",
@@ -193,7 +202,7 @@ class _CartButtonState extends State<CartButton> {
                                     ),
                                   ),
 
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 20),
 
                                   Center(
                                     child: ElevatedButton(
