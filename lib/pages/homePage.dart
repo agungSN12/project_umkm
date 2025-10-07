@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // 🔍 Search bar aktif
+                    // Search bar aktif
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
