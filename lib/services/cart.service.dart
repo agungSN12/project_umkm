@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_umkm/model/chartModel.dart';
+import 'package:project_umkm/model/chart.model.dart';
 
 class FirebaseService {
   static final COLLECTION_REF = 'cart';
@@ -28,11 +28,11 @@ class FirebaseService {
             doc.reference.delete();
           }
           print(
-            "🗑️ Item dengan productId $productId berhasil dihapus dari Firestore",
+            "Item dengan productId $productId berhasil dihapus dari Firestore",
           );
         })
         .catchError((e) {
-          print("❌ Gagal menghapus item: $e");
+          print(" Gagal menghapus item: $e");
         });
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:project_umkm/component/Contact.dart';
-import 'package:project_umkm/component/notification.dart';
+import 'package:project_umkm/component/contact.component.dart';
+import 'package:project_umkm/component/notification.component.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

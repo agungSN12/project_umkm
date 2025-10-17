@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/Contact.dart';
-import 'package:project_umkm/component/cart.dart';
+import 'package:project_umkm/component/contact.component.dart';
+import 'package:project_umkm/component/cart.component.dart';
 
-import 'package:project_umkm/model/chartModel.dart';
-import 'package:project_umkm/model/paket.dart';
-import 'package:project_umkm/services/firebase_service.dart';
-import '../model/product.dart';
+import 'package:project_umkm/model/chart.model.dart';
+import 'package:project_umkm/model/paket.model.dart';
+import 'package:project_umkm/services/cart.service.dart';
 
 class DetailPagePaket extends StatefulWidget {
   final Paket PaketProduct;

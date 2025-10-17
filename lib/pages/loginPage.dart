@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const loginPage(),
-    );
-  }
-}
+import 'package:project_umkm/component/FireStoreHelper.component.dart';
+import 'package:project_umkm/component/navbar.component.dart';
+import 'package:project_umkm/pages/registerPage.dart';
+import 'package:project_umkm/services/auth.service.dart';
+import 'package:provider/provider.dart';
 
 class loginPage extends StatelessWidget {
-  const loginPage({super.key});
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final helper = FirestoreHelper();
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _onLogin() async {
+      final username = usernameController.text.trim();
+      final password = passwordController.text.trim();
+
+      await helper.submitToFirestore(
+        context: context,
+        collectionName: "users",
+        data: {
+          "username": username,
+          "password": password,
+          "createdAt": DateTime.now(),
+        },
+      );
+    }
+
+    final auth = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       body: Stack(
         children: [
@@ -43,19 +50,40 @@ class loginPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Register",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                        fontFamily: 'Sora',
-                      ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Navigation(),
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.arrow_back),
+                          ),
+                        ),
+                        const Text(
+                          "Login",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontFamily: 'Sora',
+                          ),
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 40),
 
                     // Username
                     _buildTextField(
+                      controller: usernameController,
                       icon: Icons.person,
                       hint: "Masukan Username",
                     ),
@@ -63,6 +91,7 @@ class loginPage extends StatelessWidget {
 
                     // Password
                     _buildTextField(
+                      controller: passwordController,
                       icon: Icons.lock,
                       hint: "Masukan Password",
                       obscureText: true,
@@ -82,7 +111,9 @@ class loginPage extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          _onLogin();
+                        },
                         child: const Text(
                           "LOGIN",
                           style: TextStyle(
@@ -95,10 +126,32 @@ class loginPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text(
-                      "Atau Login Dengan",
-                      style: TextStyle(color: Colors.white),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: const Text(
+                            "Atau Login Dengan",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterPage(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Sign In",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
+
                     const SizedBox(height: 20),
 
                     // Tombol Google
@@ -114,11 +167,49 @@ class loginPage extends StatelessWidget {
                         children: [
                           Image.asset('asset/images/Google.png', height: 24),
                           const SizedBox(width: 20),
-                          const Text(
-                            "Masuk dengan Google",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                          TextButton(
+                            onPressed: () async {
+                              await auth.signInWithGoogle();
+
+                              if (auth.user != null) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Berhasil"),
+                                    content: const Text("Login berhasil!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                            context,
+                                          ); // tutup dialog
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => Navigation(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                // jika login gagal
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Login gagal, coba lagi"),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text(
+                              "Masuk dengan Google",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ],
@@ -135,11 +226,13 @@ class loginPage extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required IconData icon,
     required String hint,
     bool obscureText = false,
   }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(

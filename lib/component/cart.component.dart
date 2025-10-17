@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
-import 'package:project_umkm/services/firebase_service.dart';
+import 'package:project_umkm/services/cart.service.dart';
 
 class CartButton extends StatefulWidget {
   const CartButton({super.key});

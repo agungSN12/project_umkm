@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/ChatComponent.dart';
+import 'package:project_umkm/component/chat.component.dart';
 
 void main() {
   runApp(const MyApp());

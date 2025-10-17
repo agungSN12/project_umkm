@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/Contact.dart';
-
-import 'package:project_umkm/component/cart.dart';
-import 'package:project_umkm/model/paket.dart';
+import 'package:project_umkm/component/cart.component.dart';
+import 'package:project_umkm/component/notification.component.dart';
+import 'package:project_umkm/model/paket.model.dart';
+import 'package:project_umkm/model/product.model.dart';
 import 'package:project_umkm/pages/detailPage.dart';
-import 'package:project_umkm/component/notification.dart';
-import 'package:project_umkm/pages/detailpagePaket.dart';
-import '../model/product.dart';
+import 'package:project_umkm/pages/detailPaketPage.dart';
+import 'package:project_umkm/pages/loginPage.dart';
+import 'package:project_umkm/services/auth.service.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,16 +17,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // controller untuk search field
   final TextEditingController _searchController = TextEditingController();
-
-  // data awal
   List<Product> _filteredProducts = products;
 
   @override
   void initState() {
     super.initState();
-    // ketika user mengetik sesuatu, otomatis panggil fungsi filter
     _searchController.addListener(_filterProducts);
   }
 
@@ -51,20 +48,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> banners = [
-      {
-        'image': 'assets/banner1.jpg',
-        'text': 'Promo Kue Klepon, beli 2 gratis 1 🎉',
-      },
-      {
-        'image': 'assets/banner2.jpg',
-        'text': 'Pesanan kamu sedang diproses 🍰',
-      },
-      {
-        'image': 'assets/banner3.jpg',
-        'text': 'Dapatkan diskon 10% untuk pembelian pertama 💸',
-      },
-    ];
+    final auth = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -76,84 +60,109 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.all(23),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF6D4C41), // warna coklat
+                  color: Color(0xFF6D4C41),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(25),
                     bottomRight: Radius.circular(25),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    // Baris profil + tombol visit me + call me
-                    Row(
+                child: Consumer<AuthService>(
+                  builder: (context, authProvider, _) {
+                    final user = authProvider.user;
+
+                    return Column(
                       children: [
-                        const SizedBox(width: 10),
-                        const NotificationPopup(),
-                        const Expanded(
-                          child: Text(
-                            "Kiwari Baker",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                         Row(
                           children: [
-                            const SizedBox(width: 10),
-                            IconButton(
-                              onPressed: () {
-                                Contact.show(
-                                  context,
-                                  title: "Hubungi via WhatsApp",
-                                  label: "Nomor WhatsApp Toko:",
-                                  value: "628143653225",
-                                  accentColor: Colors.green,
-                                );
-                              },
-                              icon: const Icon(Icons.call, color: Colors.white),
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
+                            Expanded(
+                              child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
+                                  horizontal: 16,
                                   vertical: 8,
                                 ),
+                                child: user != null
+                                    ? Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              auth.signOut();
+                                            },
+                                            child: CircleAvatar(
+                                              radius: 15,
+                                              backgroundImage: NetworkImage(
+                                                user.photoURL!,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            "Hi ${user.displayName ?? 'User'}",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    loginPage(),
+                                              ),
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            foregroundColor: Color(0xFF6D4C41),
+                                          ),
+                                          child: const Text("Login"),
+                                        ),
+                                      ),
                               ),
+                            ),
+                            const Row(
+                              children: [
+                                SizedBox(width: 10),
+                                CartButton(),
+                                SizedBox(width: 15),
+                                NotificationPopup(),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(width: 15),
-                        const CartButton(),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Search bar aktif
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.search, color: Colors.grey),
-                          hintText: "Cari produk...",
-                          border: InputBorder.none,
+                        const SizedBox(height: 16),
+                        // Search bar
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              icon: Icon(Icons.search, color: Colors.grey),
+                              hintText: "Cari produk...",
+                              border: InputBorder.none,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
 
               SizedBox(
-                height: 180, // atur tinggi banner sesuai kebutuhan
+                height: 180,
                 child: CarouselView(
                   itemExtent: MediaQuery.of(context).size.width,
-                  // biar full ke kiri-kanan
                   children: const [
                     Image(
                       image: AssetImage("asset/images/apem.png"),
@@ -172,8 +181,6 @@ class _HomePageState extends State<HomePage> {
               ),
 
               const SizedBox(height: 20),
-
-              // 🔹 Best Seller Produk
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
@@ -183,7 +190,7 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 10),
 
-              // 🔹 List produk hasil filter
+              // Produk hasil filter
               SizedBox(
                 height: 180,
                 child: _filteredProducts.isEmpty
@@ -255,7 +262,7 @@ class _HomePageState extends State<HomePage> {
                       ),
               ),
 
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 child: Text(
@@ -280,8 +287,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-
-                      child: (Container(
+                      child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                         width: 170,
                         child: Stack(
@@ -290,7 +296,7 @@ class _HomePageState extends State<HomePage> {
                             Container(color: Colors.black.withOpacity(0.3)),
                             Center(
                               child: Text(
-                                paket.name, // langsung pakai variabel
+                                paket.name,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,
@@ -299,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                      )),
+                      ),
                     );
                   },
                 ),

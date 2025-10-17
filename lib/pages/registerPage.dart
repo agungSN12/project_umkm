@@ -1,26 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:project_umkm/pages/loginPage.dart';
+import 'package:project_umkm/services/auth.service.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const RegisterPage(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       body: Stack(
         children: [
@@ -119,9 +108,23 @@ class RegisterPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 20),
-                    const Text(
-                      "Atau Login Dengan",
-                      style: TextStyle(color: Colors.white),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => loginPage(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
 
@@ -138,11 +141,16 @@ class RegisterPage extends StatelessWidget {
                         children: [
                           Image.asset('asset/images/Google.png', height: 24),
                           const SizedBox(width: 20),
-                          const Text(
-                            "Daftar dengan Google",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                          TextButton(
+                            onPressed: () {
+                              auth.signInWithGoogle();
+                            },
+                            child: Text(
+                              "Daftar dengan Google",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ],
