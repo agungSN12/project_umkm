@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_umkm/component/FireStoreHelper.component.dart';
+import 'package:project_umkm/controller/FireStoreHelper.controller.dart';
 import 'package:project_umkm/component/navbar.component.dart';
+import 'package:project_umkm/controller/auth.controller.dart';
 import 'package:project_umkm/pages/registerPage.dart';
 import 'package:project_umkm/services/auth.service.dart';
 import 'package:provider/provider.dart';
@@ -9,24 +10,10 @@ class loginPage extends StatelessWidget {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final helper = FirestoreHelper();
+  final AuthController _authController = AuthController();
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _onLogin() async {
-      final username = usernameController.text.trim();
-      final password = passwordController.text.trim();
-
-      await helper.submitToFirestore(
-        context: context,
-        collectionName: "users",
-        data: {
-          "username": username,
-          "password": password,
-          "createdAt": DateTime.now(),
-        },
-      );
-    }
-
     final auth = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       body: Stack(
@@ -100,7 +87,6 @@ class loginPage extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Tombol Submit
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -111,8 +97,23 @@ class loginPage extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
-                        onPressed: () {
-                          _onLogin();
+                        onPressed: () async {
+                          final username = usernameController.text.trim();
+                          final password = passwordController.text.trim();
+                          if (username.isEmpty || password.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Isi username dan password dulu"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          await _authController.handleLogin(
+                            context: context,
+                            username: username,
+                            password: password,
+                          );
                         },
                         child: const Text(
                           "LOGIN",
@@ -170,7 +171,6 @@ class loginPage extends StatelessWidget {
                           TextButton(
                             onPressed: () async {
                               await auth.signInWithGoogle();
-
                               if (auth.user != null) {
                                 showDialog(
                                   context: context,
@@ -180,9 +180,7 @@ class loginPage extends StatelessWidget {
                                     actions: [
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pop(
-                                            context,
-                                          ); // tutup dialog
+                                          Navigator.pop(context);
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
@@ -196,7 +194,6 @@ class loginPage extends StatelessWidget {
                                   ),
                                 );
                               } else {
-                                // jika login gagal
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Login gagal, coba lagi"),

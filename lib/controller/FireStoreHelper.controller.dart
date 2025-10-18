@@ -8,13 +8,17 @@ class FirestoreHelper {
     required BuildContext context,
     required String collectionName,
     required Map<String, dynamic> data,
+    List<String> requiredFields = const [],
     String successMessage = "Data berhasil disimpan ke Firestore",
   }) async {
-    if (data.values.any((value) => value == null || value.toString().isEmpty)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Semua field harus diisi")));
-      return;
+    for (final field in requiredFields) {
+      final value = data[field];
+      if (value == null || value.toString().trim().isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Field '$field' harus diisi")));
+        return;
+      }
     }
 
     try {

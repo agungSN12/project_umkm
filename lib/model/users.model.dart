@@ -2,6 +2,9 @@ class Users {
   final String uid;
   final String name;
   final String email;
+  final String nohp;
+  final String password;
+  final String alamat;
   final String photoURL;
   final String role;
 
@@ -9,6 +12,9 @@ class Users {
     required this.uid,
     required this.name,
     required this.email,
+    required this.nohp,
+    required this.password,
+    required this.alamat,
     required this.photoURL,
     required this.role,
   });
@@ -18,6 +24,9 @@ class Users {
       uid: documentId,
       name: map['name'] ?? '',
       email: map['email'] ?? '',
+      nohp: map['nohp'] ?? '',
+      password: map['password'] ?? '',
+      alamat: map['alamat'] ?? '',
       photoURL: map['photoURL'] ?? '',
       role: map['role'] ?? '',
     );
@@ -28,6 +37,9 @@ class Users {
       'uid': uid,
       'name': name,
       'email': email,
+      'nohp': nohp,
+      'password': password,
+      'alamat': alamat,
       'photoURL': photoURL,
       'role': role,
     };

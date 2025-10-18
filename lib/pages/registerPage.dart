@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:project_umkm/component/navbar.component.dart';
+import 'package:project_umkm/controller/FireStoreHelper.controller.dart';
+import 'package:project_umkm/controller/auth.controller.dart';
+import 'package:project_umkm/model/users.model.dart';
 import 'package:project_umkm/pages/loginPage.dart';
 import 'package:project_umkm/services/auth.service.dart';
-
 import 'package:provider/provider.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final nohpController = TextEditingController();
+
+  final AuthController authController = AuthController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,20 +36,8 @@ class RegisterPage extends StatelessWidget {
               ),
             ),
           ),
-
           Container(color: Colors.black.withOpacity(0.5)),
-          const Align(
-            alignment: Alignment.topCenter,
-            child: Text(
-              "Kiwari Bakery",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins  ',
-              ),
-            ),
-          ),
+
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -56,35 +59,35 @@ class RegisterPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
 
-                    // Username
                     _buildTextField(
+                      controller: usernameController,
                       icon: Icons.person,
                       hint: "Masukan Username",
                     ),
                     const SizedBox(height: 16),
 
-                    // Nomor Telepon
                     _buildTextField(
+                      controller: nohpController,
                       icon: Icons.phone,
                       hint: "Masukan Nomor Telepon",
                     ),
                     const SizedBox(height: 16),
 
-                    // Email
-                    _buildTextField(icon: Icons.email, hint: "Masukan Email"),
+                    _buildTextField(
+                      controller: emailController,
+                      icon: Icons.email,
+                      hint: "Masukan Email",
+                    ),
                     const SizedBox(height: 16),
 
-                    // Password
                     _buildTextField(
+                      controller: passwordController,
                       icon: Icons.lock,
                       hint: "Masukan Password",
                       obscureText: true,
                     ),
                     const SizedBox(height: 20),
 
-                    const SizedBox(height: 20),
-
-                    // Tombol Submit
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -95,7 +98,40 @@ class RegisterPage extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 20),
                         ),
-                        onPressed: () {},
+                        onPressed: () async {
+                          final username = usernameController.text.trim();
+                          final email = emailController.text.trim();
+                          final nohp = nohpController.text.trim();
+                          final password = passwordController.text.trim();
+
+                          if (username.isEmpty ||
+                              password.isEmpty ||
+                              email.isEmpty ||
+                              nohp.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Semua field harus diisi"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final user = Users(
+                            uid: '',
+                            name: username,
+                            email: email,
+                            nohp: nohp,
+                            password: password,
+                            alamat: '',
+                            photoURL: '',
+                            role: 'user',
+                          );
+
+                          await authController.handleRegister(
+                            context: context,
+                            user: user,
+                          );
+                        },
                         child: const Text(
                           "SUBMIT",
                           style: TextStyle(
@@ -108,27 +144,19 @@ class RegisterPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => loginPage(),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Login",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => loginPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                    const SizedBox(height: 20),
 
-                    // Tombol Google
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -142,11 +170,40 @@ class RegisterPage extends StatelessWidget {
                           Image.asset('asset/images/Google.png', height: 24),
                           const SizedBox(width: 20),
                           TextButton(
-                            onPressed: () {
-                              auth.signInWithGoogle();
+                            onPressed: () async {
+                              await auth.signInWithGoogle();
+                              if (auth.user != null) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Berhasil"),
+                                    content: const Text("Login berhasil!"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => Navigation(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text("OK"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Login gagal, coba lagi"),
+                                  ),
+                                );
+                              }
                             },
                             child: Text(
-                              "Daftar dengan Google",
+                              "Masuk dengan Google",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
@@ -167,11 +224,13 @@ class RegisterPage extends StatelessWidget {
   }
 
   Widget _buildTextField({
+    required TextEditingController controller,
     required IconData icon,
     required String hint,
     bool obscureText = false,
   }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
       style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(

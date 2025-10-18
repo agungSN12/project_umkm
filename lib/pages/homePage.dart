@@ -48,7 +48,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthService>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -67,9 +66,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 child: Consumer<AuthService>(
-                  builder: (context, authProvider, _) {
-                    final user = authProvider.user;
-
+                  builder: (context, auth, _) {
+                    final user = auth.currentUser;
+                    debugPrint(user?.name);
                     return Column(
                       children: [
                         Row(
@@ -90,13 +89,13 @@ class _HomePageState extends State<HomePage> {
                                             child: CircleAvatar(
                                               radius: 15,
                                               backgroundImage: NetworkImage(
-                                                user.photoURL!,
+                                                user.photoURL,
                                               ),
                                             ),
                                           ),
                                           const SizedBox(width: 10),
                                           Text(
-                                            "Hi ${user.displayName ?? 'User'}",
+                                            "Hi ${user.name}",
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 18,
