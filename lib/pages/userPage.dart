@@ -306,83 +306,7 @@ class _UserPageState extends State<UserPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                // Saldo Dan Point
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    // border: Border.all(width: 10),
-                    borderRadius: BorderRadius.circular(0),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Saldo & Point",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Column(
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.account_balance_wallet,
-                                  color: Color(0xFF6D4C41),
-                                ),
-                                onPressed: () {
-                                  // Belum ada aksinya
-                                },
-                              ),
-                              Text(
-                                'Rp 100.000',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                              Text('Saldo'),
-                            ],
-                          ),
-                          Container(width: 1, height: 70, color: Colors.grey),
-                          Column(
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.circle,
-                                  color: Colors.amber,
-                                ),
-                                onPressed: () {
-                                  // Belum ada aksinya
-                                },
-                              ),
-                              Text(
-                                'Rp0',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                              Text('Bonus'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+
                 // Bantuan
                 const SizedBox(height: 10),
                 Container(
@@ -407,12 +331,7 @@ class _UserPageState extends State<UserPage> {
                         ],
                       ),
                       const SizedBox(height: 5),
-                      ListTile(
-                        leading: Icon(Icons.help_outline),
-                        title: Text("Pusat Bantuan"),
-                        trailing: Icon(Icons.chevron_right),
-                      ),
-                      Divider(),
+                      // Divider(),
                       ListTile(
                         leading: Icon(Icons.support_agent),
                         title: Text("Chat Dengan Kiwari"),

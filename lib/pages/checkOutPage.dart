@@ -75,7 +75,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(0),
           child: Column(
             children: [
               Container(
@@ -83,7 +83,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 child: Consumer<AuthService>(
                   builder: (context, auth, _) {
@@ -270,15 +270,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
               ),
 
+              // Bagian Note Ke penjual
               const SizedBox(height: 4),
-
               Container(
                 padding: const EdgeInsets.all(16),
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -348,7 +348,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
               ),
               // Container Hasil Input dari catatan
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
 
               //  Detail Pesanan
               Container(
@@ -357,7 +357,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +377,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ],
                     ),
-
+                    // Tampilan produk yang di beli
                     const SizedBox(height: 4),
                     Column(
                       children: widget.data.map((item) {
@@ -386,7 +386,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           child: Row(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(0),
                                 child: Image.asset(
                                   item['image'],
                                   height: 100,
@@ -440,7 +440,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 child: Column(
                   children: [
@@ -532,7 +532,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
