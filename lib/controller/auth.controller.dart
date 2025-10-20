@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 class AuthController {
   final authService = AuthService();
+
   Future<void> handleLogin({
     required BuildContext context,
     required String username,

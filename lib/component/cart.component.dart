@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:popover/popover.dart';
-import 'package:project_umkm/services/cart.service.dart';
+import 'package:project_umkm/controller/cart.controller.dart';
+import 'package:project_umkm/controller/form.controller.dart';
+import 'package:project_umkm/pages/checkOutPage.dart';
+import 'package:project_umkm/services/auth.service.dart';
+
+import 'package:provider/provider.dart';
 
 class CartButton extends StatefulWidget {
   const CartButton({super.key});
@@ -11,10 +16,15 @@ class CartButton extends StatefulWidget {
 }
 
 class _CartButtonState extends State<CartButton> {
+  final CartController cartController = CartController();
   @override
   Widget build(BuildContext context) {
+    final uid = Provider.of<AuthService>(context).currentUser?.uid ?? "";
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseService().getCart(),
+      stream: FirestoreHelper().streamDocumentsByUser(
+        collectionName: "cart",
+        uid: uid,
+      ),
       builder: (context, snapshot) {
         int totalDocs = snapshot.hasData ? snapshot.data!.docs.length : 0;
 
@@ -51,7 +61,7 @@ class _CartButtonState extends State<CartButton> {
                         const Divider(),
                         Expanded(
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseService().getCart(),
+                            stream: cartController.streamCartByUser(uid),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -156,7 +166,7 @@ class _CartButtonState extends State<CartButton> {
                                                 );
 
                                                 try {
-                                                  FirebaseService().deleteCart(
+                                                  cartController.deleteCart(
                                                     data["productId"],
                                                   );
                                                 } catch (e) {
@@ -175,7 +185,7 @@ class _CartButtonState extends State<CartButton> {
                                                   ).showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
-                                                        'Item berhasil dihapus 🗑️',
+                                                        'Item berhasil dihapus ',
                                                       ),
                                                     ),
                                                   );
@@ -212,7 +222,27 @@ class _CartButtonState extends State<CartButton> {
                                         ),
                                       ),
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        if (!snapshot.hasData) return;
+
+                                        // Konversi snapshot ke List<Map<String, dynamic>>
+                                        List<Map<String, dynamic>>
+                                        carts = snapshot.data!.docs
+                                            .map(
+                                              (doc) =>
+                                                  doc.data()
+                                                      as Map<String, dynamic>,
+                                            )
+                                            .toList();
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CheckoutPage(
+                                              data: carts,
+                                              totalPrice: totalHarga,
+                                            ),
+                                          ),
+                                        );
                                       },
                                       child: const Text(
                                         "Checkout",

@@ -17,7 +17,7 @@ class ProfilePage extends StatelessWidget {
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
-            child: NotificationPopup(), // tombol notifikasi di kanan
+            child: NotificationPopup(),
           ),
         ],
       ),

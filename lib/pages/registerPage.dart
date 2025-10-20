@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/component/navbar.component.dart';
-import 'package:project_umkm/controller/FireStoreHelper.controller.dart';
 import 'package:project_umkm/controller/auth.controller.dart';
 import 'package:project_umkm/model/users.model.dart';
 import 'package:project_umkm/pages/loginPage.dart';
@@ -124,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             password: password,
                             alamat: '',
                             photoURL: '',
-                            role: 'user',
+                            role: 'admin',
                           );
 
                           await authController.handleRegister(

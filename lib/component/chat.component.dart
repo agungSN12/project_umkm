@@ -9,8 +9,7 @@ class ChatComponent extends StatefulWidget {
 }
 
 class _ChatComponentState extends State<ChatComponent> {
-  final List<Map<String, String>> messages =
-      []; // {role: "user"/"bot", text: ""}
+  final List<Map<String, String>> messages = [];
   final TextEditingController _controller = TextEditingController();
 
   final List<String> suggestedQuestions = [

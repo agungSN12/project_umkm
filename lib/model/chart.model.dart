@@ -1,5 +1,6 @@
 class Cart {
   final int id;
+  final String uid;
   final String productId;
   final String name;
   final String image;
@@ -8,6 +9,7 @@ class Cart {
 
   Cart({
     required this.id,
+    required this.uid,
     required this.productId,
     required this.name,
     required this.image,
@@ -15,10 +17,10 @@ class Cart {
     required this.quantity,
   });
 
-  // Konversi dari Map (data Firestore) ke objek Cart
-  factory Cart.fromMap(Map<String, dynamic> map, int documentId) {
+  factory Cart.fromMap(Map<String, dynamic> map, int documentId, String uid) {
     return Cart(
       id: documentId,
+      uid: uid,
       productId: map['productId'] ?? '',
       name: map['name'] ?? '',
       image: map['image'] ?? '',
@@ -30,6 +32,7 @@ class Cart {
   // Konversi dari Cart ke Map (untuk disimpan ke Firestore)
   Map<String, dynamic> toMap() {
     return {
+      'uid': uid,
       'productId': productId,
       'name': name,
       'image': image,

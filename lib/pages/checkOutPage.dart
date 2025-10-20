@@ -1,22 +1,67 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MaterialApp(home: CheckoutPage()));
-}
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:project_umkm/component/formatNumber.component.dart';
+import 'package:project_umkm/controller/cart.controller.dart';
+import 'package:project_umkm/controller/location.controller.dart';
+import 'package:project_umkm/controller/users.controller.dart';
+import 'package:project_umkm/model/users.model.dart';
+import 'package:project_umkm/pages/userPage.dart';
+import 'package:project_umkm/services/auth.service.dart';
+import 'package:provider/provider.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  final List<Map<String, dynamic>> data;
+  final num totalPrice;
+
+  const CheckoutPage({super.key, required this.data, required this.totalPrice});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  int jumlah = 1;
-  String catatan = "";
+  LatLng? userLocation;
+  String? selectedShippingOption;
+  @override
+  void initState() {
+    super.initState();
+    _loadUserLocation();
+  }
+
+  void _loadUserLocation() async {
+    final authUser = context.read<AuthService>().currentUser;
+    if (authUser != null) {
+      final locationData = await LocationController().getLocation(authUser.uid);
+      if (mounted) {
+        setState(() {
+          userLocation = locationData;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    CartController cartController = CartController();
+
+    num biayaPengiriman = 11000;
+    num biayaLayanan = 4000;
+    String catatan = "";
+    String? name = "";
+    String? alamat = "";
+    String? nohp = "";
+    String uid = "";
+    final formatterNumber = FormatNumber();
+    final userController usercontroller = userController();
+    String? sellerUID;
+
+    num total = widget.totalPrice + biayaPengiriman + biayaLayanan;
+    final formatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 235, 234, 234),
       appBar: AppBar(
@@ -31,7 +76,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // 🏠 Container Alamat Pengiriman
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -39,115 +83,193 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   border: Border.all(width: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Alamat Pengiriman Kamu",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on,
-                          color: Color.fromARGB(255, 182, 108, 11),
-                          size: 26,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "Rumah - Nama User",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          '(+62) 896-542-329-69',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w100,
-                            color: Colors.black54,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 34, top: 6),
-                      child: Text(
-                        "Dsn. Ciburaleng, Kec. Cimanggung, Kab. Sumedang",
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.local_shipping,
-                          color: Color.fromARGB(255, 182, 108, 11),
-                          size: 26,
-                        ),
-                        const SizedBox(width: 3),
-                        const Text('Opsi Pengiriman'),
-                        const SizedBox(width: 3),
-                        const Icon(Icons.info, color: Colors.grey, size: 20),
-                        const Spacer(),
-                        Text(
-                          'Jarak 4.2km',
-                          style: TextStyle(fontSize: 10, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Column(
+                child: Consumer<AuthService>(
+                  builder: (context, auth, _) {
+                    final user = auth.currentUser;
+                    name = user?.name;
+                    alamat = user?.alamat;
+                    nohp = user?.nohp;
+
+                    if (user == null) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    uid = user.uid;
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text("Prioritas < 30 Menit"),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8),
-                          margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            border: Border.all(
+                        const Text("", style: TextStyle(fontSize: 15)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
                               color: Color.fromARGB(255, 182, 108, 11),
+                              size: 26,
                             ),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text(
-                            "Standar - 30 Menit",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 182, 108, 11),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Rumah - ${user.name}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
                             ),
+                            const SizedBox(width: 8),
+                            Text(
+                              formatterNumber.formatIndoPhone(user.nohp),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w100,
+                                color: Colors.black54,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 34, top: 6),
+                          child: Column(
+                            children: [
+                              Text(
+                                "${user.alamat}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              FutureBuilder<LatLng?>(
+                                future: LocationController().getLocation(
+                                  user.uid,
+                                ),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Padding(
+                                      padding: EdgeInsets.only(top: 4),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    );
+                                  }
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      userLocation != null
+                                          ? "Koordinat: ${userLocation!.latitude}, ${userLocation!.longitude}"
+                                          : "Koordinat tidak tersedia",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Text("Terjadwal"),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.local_shipping,
+                              color: Color.fromARGB(255, 182, 108, 11),
+                              size: 26,
+                            ),
+                            const SizedBox(width: 3),
+                            const Text('Opsi Pengiriman'),
+                            const SizedBox(width: 3),
+                            const Icon(
+                              Icons.info,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            const Spacer(),
+                            Text(
+                              'Jarak 4.2km',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _shippingOption("Prioritas < 30 Menit"),
+                            _shippingOption("Standar - 30 Menit"),
+                            _shippingOption("Terjadwal"),
+                            SizedBox(width: 10),
+                            Container(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  await usercontroller
+                                      .fetchUsersByRoleSortedByDistance(
+                                        context,
+                                        userLocation!,
+                                        'admin',
+                                      );
+
+                                  if (usercontroller.users.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Tidak ada seller tersedia",
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  Users? selected = await showDialog<Users>(
+                                    context: context,
+                                    builder: (context) => SimpleDialog(
+                                      title: const Text("Pilih Seller"),
+                                      children: usercontroller.users.map((
+                                        admin,
+                                      ) {
+                                        return SimpleDialogOption(
+                                          onPressed: () =>
+                                              Navigator.pop(context, admin),
+                                          child: Row(
+                                            children: [
+                                              CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                  admin.photoURL,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(admin.name),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  );
+                                  if (selected != null) {
+                                    usercontroller.selectUser(selected);
+                                    sellerUID = selected.uid;
+                                  }
+                                },
+                                child: Text(
+                                  usercontroller.selectedUser != null
+                                      ? usercontroller.selectedUser!.name
+                                      : "Pilih Seller",
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
 
               const SizedBox(height: 4),
 
-              //  Container Catatan Pesanan
               Container(
                 padding: const EdgeInsets.all(16),
                 width: double.infinity,
@@ -156,11 +278,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   border: Border.all(width: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Pesan Untuk Penjual'),
+                    Text(
+                      catatan.isEmpty
+                          ? "Belum ada catatan"
+                          : "Catatan: $catatan",
+                    ),
+                    const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () {
                         TextEditingController controller =
@@ -214,49 +342,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                     ),
-                    // const SizedBox(height: 10),
-                    // Text(
-                    //   catatan.isEmpty
-                    //       ? "Belum ada catatan"
-                    //       : "Catatan: $catatan",
-                    // ),
                   ],
                 ),
               ),
               // Container Hasil Input dari catatan
-              const SizedBox(height: 0),
-              Container(
-                padding: const EdgeInsets.all(16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(width: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Row(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          // crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Catatan:', style: TextStyle(fontSize: 18)),
-                            const SizedBox(width: 230),
-                            Text(
-                              catatan.isEmpty
-                                  ? "Belum ada catatan"
-                                  : "$catatan",
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 4),
+              const SizedBox(height: 10),
 
               //  Detail Pesanan
               Container(
@@ -287,62 +377,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
 
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        // Jika belum ada asset, comment dulu
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'asset/images/putu.png',
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text("Kue Putu Tradisional Isi Gula Merah"),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (jumlah > 1) jumlah--;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                  color: Colors.brown,
+                    Column(
+                      children: widget.data.map((item) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  item['image'],
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover,
                                 ),
-                                Text(
-                                  "$jumlah",
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      jumlah++;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.add_circle_outline),
-                                  color: Colors.brown,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Rp10.000",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Color.fromARGB(255, 182, 108, 11),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(width: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['name'],
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Rp${item['price']}",
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Color.fromARGB(
+                                            255,
+                                            182,
+                                            108,
+                                            11,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(" x ${item["quantity"]}"),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ),
@@ -377,23 +458,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
-                          'Total Pesanan (1 menu)',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        Text('10.000'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        Text(
-                          'Total Biaya Pengiriman ?',
+                          'Total Pesanan ',
                           style: TextStyle(color: Colors.grey),
                         ),
                         Text(
-                          '11.000',
+                          formatter.format(widget.totalPrice),
                           style: TextStyle(
                             color: Color.fromARGB(255, 182, 108, 11),
                           ),
@@ -402,26 +473,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
+                        Text(
+                          'Total Biaya Pengiriman ?',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        Text(
+                          formatter.format(biayaPengiriman),
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 182, 108, 11),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
                           'Biaya Layanan ?',
                           style: TextStyle(color: Colors.grey),
                         ),
-                        Text('4.000'),
+                        Text(
+                          formatter.format(biayaLayanan),
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 182, 108, 11),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
                           'Total',
                           style: TextStyle(fontSize: 20, color: Colors.black),
                         ),
                         Text(
-                          '25.000',
+                          formatter.format(total),
                           style: TextStyle(
-                            fontSize: 20,
                             color: Color.fromARGB(255, 182, 108, 11),
                           ),
                         ),
@@ -450,8 +540,78 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       style: TextStyle(fontSize: 15),
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        print('Pesanan dibuat!');
+                      onPressed: () async {
+                        if (userLocation == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Lokasi belum tersedia"),
+                            ),
+                          );
+                          return;
+                        }
+                        if (selectedShippingOption == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Pilih opsi pengiriman"),
+                            ),
+                          );
+                          return;
+                        }
+                        if (sellerUID == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Pilih seller")),
+                          );
+                          return;
+                        }
+
+                        try {
+                          await cartController.checkout(
+                            uid: uid,
+                            alamat: alamat!,
+                            lokasi: userLocation!,
+                            sellerUID: sellerUID!,
+                            catatan: catatan,
+                            opsi_pengiriman: selectedShippingOption!,
+                            products: widget.data,
+                            totalPrice: total,
+                          );
+
+                          // Notifikasi berhasil
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Pesanan Berhasil"),
+                              content: const Text("Pesanan berhasil dibuat!"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Tutup"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            UserPage(seller_uid: sellerUID),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Lihat Pesanan Anda"),
+                                ),
+                              ],
+                            ),
+                          );
+                        } catch (e) {
+                          // Jika terjadi error
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Gagal membuat pesanan: $e"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(
@@ -481,6 +641,43 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _shippingOption(String label) {
+    bool isSelected = selectedShippingOption == label;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedShippingOption = label;
+        });
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected
+                ? const Color.fromARGB(255, 182, 108, 11)
+                : Colors.grey,
+          ),
+          borderRadius: BorderRadius.circular(6),
+          color: isSelected
+              ? const Color.fromARGB(50, 182, 108, 11)
+              : Colors.white,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected
+                ? const Color.fromARGB(255, 182, 108, 11)
+                : Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

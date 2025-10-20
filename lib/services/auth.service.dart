@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 import 'package:project_umkm/model/users.model.dart';
 import 'package:project_umkm/services/firestore.service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService with ChangeNotifier {
   static final COLLECTION_REF = 'users';
@@ -116,6 +117,8 @@ class AuthService with ChangeNotifier {
         );
         await usersRef.doc(_user!.uid).set(usersModel.toMap());
         _currentUser = usersModel;
+
+        debugPrint("Data user disimpan lokal: ${usersModel.name}");
       } else {
         _currentUser = Users.fromMap(
           doc.data() as Map<String, dynamic>,
@@ -140,6 +143,7 @@ class AuthService with ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
       bool isEmail = username.contains('@');
 
       final querySnapshot = await usersRef
@@ -148,7 +152,7 @@ class AuthService with ChangeNotifier {
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        debugPrint("Username tidak ditemukan");
+        debugPrint("Username atau email tidak ditemukan");
         _isLoading = false;
         notifyListeners();
         return false;
@@ -170,14 +174,47 @@ class AuthService with ChangeNotifier {
       _currentUser = usersModel;
       notifyListeners();
 
-      _isLoading = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uid', querySnapshot.docs.first.id);
+      await prefs.setString('username', usersModel.name);
+      await prefs.setString('email', usersModel.email);
+      await prefs.setString('role', usersModel.role);
+      await prefs.setString('photoURL', usersModel.photoURL);
+      await prefs.setString('lastLogin', DateTime.now().toIso8601String());
 
+      debugPrint("📦 Data user disimpan lokal: ${usersModel.name}");
+
+      _isLoading = false;
       return true;
     } catch (e) {
-      debugPrint("Error saat login: $e");
+      debugPrint("🔥 Error saat login: $e");
       _isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<void> loadUserFromLocal() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('username');
+    final email = prefs.getString('email');
+    final photoURL = prefs.getString('photoURL');
+    final role = prefs.getString('role');
+
+    if (username != null) {
+      _currentUser = Users(
+        uid: prefs.getString('uid') ?? '',
+        name: username,
+        email: email ?? '',
+        password: '',
+        alamat: '',
+        nohp: '',
+        photoURL: photoURL ?? '',
+        role: role ?? 'user',
+      );
+
+      debugPrint("🔁 Auto login: $username");
+      notifyListeners();
     }
   }
 
@@ -193,12 +230,65 @@ class AuthService with ChangeNotifier {
     }
   }
 
+  Future<List<Users>> fetchUsersByRole(String role) async {
+    try {
+      final querySnapshot = await usersRef.where('role', isEqualTo: role).get();
+
+      if (querySnapshot.docs.isEmpty) {
+        debugPrint("Tidak ada user dengan role $role");
+        return [];
+      }
+
+      final usersList = querySnapshot.docs.map((doc) {
+        return Users.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+
+      debugPrint("Ditemukan ${usersList.length} user dengan role $role");
+      return usersList;
+    } catch (e) {
+      debugPrint("Error fetchUsersByRole: $e");
+      return [];
+    }
+  }
+
   Future<void> signOut() async {
+    final prefs = await SharedPreferences.getInstance();
     await _auth.signOut();
     await _googleSignIn.signOut();
+    await prefs.clear();
     _user = null;
     _currentUser = null;
     debugPrint("User berhasil logout");
     notifyListeners();
+  }
+
+  Future<void> trySilentGoogleLogin() async {
+    try {
+      final googleUser = await _googleSignIn.signInSilently();
+      if (googleUser == null) {
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      _user = userCredential.user;
+
+      final doc = await usersRef.doc(_user!.uid).get();
+      if (doc.exists) {
+        _currentUser = Users.fromMap(
+          doc.data() as Map<String, dynamic>,
+          doc.id,
+        );
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Silent login gagal: $e");
+    }
   }
 }

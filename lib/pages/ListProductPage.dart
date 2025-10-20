@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/model/product.model.dart';
-import 'package:project_umkm/pages/detailPage.dart';
-import 'package:project_umkm/services/cart.service.dart';
+import 'package:project_umkm/pages/detailPageProduk.dart';
 
 class ListMenuPage extends StatefulWidget {
   const ListMenuPage({super.key});
@@ -11,7 +10,6 @@ class ListMenuPage extends StatefulWidget {
 }
 
 class _ListMenuPageState extends State<ListMenuPage> {
-  final FirebaseService firebaseService = FirebaseService();
   int quantity = 1;
   @override
   Widget build(BuildContext context) {
@@ -114,7 +112,7 @@ class _ListMenuPageState extends State<ListMenuPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => DetailPage(product: item),
+                            builder: (_) => DetailPageProduk(product: item),
                           ),
                         );
                       },
