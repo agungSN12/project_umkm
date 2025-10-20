@@ -81,4 +81,26 @@ class FirestoreService {
     print("Ambil data untuk USER dengan UID: $uid");
     return collection.where('uid', isEqualTo: uid).snapshots();
   }
+
+  Future<QuerySnapshot> getOnceByField({
+    required String collectionName,
+    required String field,
+    required dynamic value,
+  }) async {
+    return await _firestore
+        .collection(collectionName)
+        .where(field, isEqualTo: value)
+        .get();
+  }
+
+  Stream<QuerySnapshot> getByField({
+    required String collectionName,
+    required String field,
+    required dynamic value,
+  }) {
+    return _firestore
+        .collection(collectionName)
+        .where(field, isEqualTo: value)
+        .snapshots();
+  }
 }

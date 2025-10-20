@@ -36,54 +36,66 @@ class OrderDetailPage extends StatelessWidget {
             return const Center(child: Text("Tidak ada pesanan"));
           }
 
-          return SingleChildScrollView(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
-            child: ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final data = docs[index].data() as Map<String, dynamic>;
-                final produk = data['produk'] ?? [];
-                final status = data['status'] ?? 'unknown';
-                final alamat = data['alamat'] ?? '-';
-                final catatan = data['catatan'] ?? '-';
-                final grandTotal = data['grandTotal'] ?? 0;
-                final biayaPengiriman = data['biayaPengiriman'] ?? 0;
-                final opsiPengiriman = data['opsiPengiriman'] ?? '-';
-                return Row(
-                  children: [
-                    Card(
-                      child: ListTile(
-                        title: Text("Status: $status"),
-                        subtitle: Text("Pengiriman: $opsiPengiriman"),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data() as Map<String, dynamic>;
+              final produk = data['produk'] ?? [];
+              final status = data['status'] ?? 'unknown';
+              final alamat = data['alamat'] ?? '-';
+              final catatan = data['catatan'] ?? '-';
+              final grandTotal = data['total'] ?? 0;
+              final biayaPengiriman = data['biayaPengiriman'] ?? 0;
+              final opsiPengiriman = data['opsiPengiriman'] ?? '-';
+              final nohp = data["nohp"];
+              final name = data["name"];
+              final koordinat = data['koordinat'] as Map<String, dynamic>?;
+
+              // Ambil lat dan lng
+              final double lat = koordinat?['lat'] ?? 0.0;
+              final double lng = koordinat?['lng'] ?? 0.0;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Nama Customer: $name",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
+                      Text(
+                        "Status: $status",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text("Pengiriman: $opsiPengiriman"),
+                      const SizedBox(height: 8),
+                      Text("No. HP: ${nohp}"),
+                      Text("Alamat: $alamat"),
+                      Row(
+                        children: [
+                          Text("lat: $lat"),
+                          SizedBox(width: 10),
+                          Text("lng: ${lng}"),
+                        ],
+                      ),
 
-                    const SizedBox(height: 16),
-                    const Text(
-                      "Alamat Pengiriman",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(alamat),
-                    const SizedBox(height: 8),
-                    Text("Catatan: $catatan"),
-
-                    const SizedBox(height: 16),
-                    const Divider(),
-                    const Text(
-                      "Daftar Produk",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // 🛍️ Daftar produk
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: produk.length,
-                      itemBuilder: (context, index) {
-                        final item = produk[index];
-                        return Card(
-                          child: ListTile(
+                      Text("Catatan: $catatan"),
+                      const Divider(),
+                      const Text(
+                        "Daftar Produk",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: produk.length,
+                        itemBuilder: (context, i) {
+                          final item = produk[i];
+                          return ListTile(
                             leading: Image.asset(
                               item['image'] ?? '',
                               width: 50,
@@ -92,54 +104,46 @@ class OrderDetailPage extends StatelessWidget {
                             ),
                             title: Text(item['name'] ?? 'Produk'),
                             subtitle: Text("Rp ${item['price']}"),
-                          ),
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-                    const Divider(),
-
-                    // 💰 Ringkasan pembayaran
-                    ListTile(
-                      title: const Text("Biaya Pengiriman"),
-                      trailing: Text("Rp $biayaPengiriman"),
-                    ),
-                    ListTile(
-                      title: const Text("Total"),
-                      trailing: Text("Rp $grandTotal"),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // 🧭 Tombol aksi untuk admin
-                    if (userRole == 'admin') ...[
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          _updateStatus(context, status);
+                          );
                         },
-                        icon: const Icon(Icons.sync),
-                        label: const Text("Ubah Status Pesanan"),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                        ),
                       ),
+                      const Divider(),
+                      ListTile(
+                        title: const Text("Biaya Pengiriman"),
+                        trailing: Text("Rp $biayaPengiriman"),
+                      ),
+                      ListTile(
+                        title: const Text("Total"),
+                        trailing: Text("Rp $grandTotal"),
+                      ),
+                      if (userRole == 'admin')
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              _updateStatus(context, status, docs[index]),
+                          icon: const Icon(Icons.sync),
+                          label: const Text("Ubah Status Pesanan"),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                        ),
                     ],
-                  ],
-
-                  // 🧾 Status dan info dasar
-                );
-              },
-            ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  void _updateStatus(BuildContext context, String currentStatus) async {
+  void _updateStatus(
+    BuildContext context,
+    String currentStatus,
+    QueryDocumentSnapshot docId,
+  ) async {
     String nextStatus = 'completed';
-
+    bool isAlreadyCompleted = currentStatus == 'completed';
     switch (currentStatus) {
       case 'pending_payment':
         nextStatus = 'in_process';
@@ -154,12 +158,34 @@ class OrderDetailPage extends StatelessWidget {
         nextStatus = 'completed';
     }
 
-    // await FirebaseFirestore.instance.collection('orders').doc(orderId).update({
-    //   'status': nextStatus,
-    // });
+    await docId.reference.update({'status': nextStatus});
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Status diubah menjadi $nextStatus')),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.check_circle, color: Colors.green),
+            SizedBox(width: 8),
+            Text("Sukses"),
+          ],
+        ),
+        content: Text(
+          isAlreadyCompleted
+              ? "Pesanan sudah selesai "
+              : "Status diubah menjadi $nextStatus ",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
     );
   }
 }

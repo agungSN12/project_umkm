@@ -1,5 +1,5 @@
 class Paket {
-  final String Id;
+  final int Id;
   final String productId;
   final String name;
   final String category;
@@ -20,7 +20,7 @@ class Paket {
 
 final List<Paket> PaketProduct = [
   Paket(
-    Id: "001",
+    Id: 1,
     productId: "e001",
     name: "Paket Maulid",
     category: "Kue Basah",
@@ -30,7 +30,7 @@ final List<Paket> PaketProduct = [
     price: 50000,
   ),
   Paket(
-    Id: "002",
+    Id: 2,
     productId: "e002",
     name: "Paket Arisan",
     category: "Kue Basah",
@@ -40,7 +40,7 @@ final List<Paket> PaketProduct = [
     price: 60000,
   ),
   Paket(
-    Id: "003",
+    Id: 3,
     productId: "e003",
     name: "Paket Ulang Tahun",
     category: "Kue Basah",
@@ -50,7 +50,7 @@ final List<Paket> PaketProduct = [
     price: 70000,
   ),
   Paket(
-    Id: "004",
+    Id: 4,
     productId: "e004",
     name: "Paket Syukuran",
     category: "Kue Basah",
@@ -60,7 +60,7 @@ final List<Paket> PaketProduct = [
     price: 55000,
   ),
   Paket(
-    Id: "005",
+    Id: 5,
     productId: "e005",
     name: "Paket Pernikahan",
     category: "Kue Basah",
@@ -70,7 +70,7 @@ final List<Paket> PaketProduct = [
     price: 120000,
   ),
   Paket(
-    Id: "006",
+    Id: 6,
     productId: "e006",
     name: "Paket Event Kantor",
     category: "Kue Basah",
@@ -80,7 +80,7 @@ final List<Paket> PaketProduct = [
     price: 80000,
   ),
   Paket(
-    Id: "008",
+    Id: 7,
     productId: "e007",
     name: "Paket Arisan RT",
     category: "Kue Basah",

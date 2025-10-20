@@ -32,6 +32,8 @@ class CartController {
 
   Future<void> checkout({
     required String uid,
+    required String name,
+    required String nohp,
     required String alamat,
     required LatLng lokasi,
     required String sellerUID,
@@ -44,6 +46,8 @@ class CartController {
   }) async {
     final checkoutData = {
       "uid": uid,
+      "name": name,
+      "nohp": nohp,
       "alamat": alamat,
       "koordinat": {"lat": lokasi.latitude, "lng": lokasi.longitude},
       "catatan": catatan,

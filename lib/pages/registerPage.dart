@@ -123,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             password: password,
                             alamat: '',
                             photoURL: '',
-                            role: 'admin',
+                            role: 'user',
                           );
 
                           await authController.handleRegister(

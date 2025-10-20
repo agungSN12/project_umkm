@@ -259,6 +259,8 @@ class AuthService with ChangeNotifier {
     _user = null;
     _currentUser = null;
     debugPrint("User berhasil logout");
+    await Future.delayed(const Duration(milliseconds: 100));
+
     notifyListeners();
   }
 

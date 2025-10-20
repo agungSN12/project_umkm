@@ -23,6 +23,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   LatLng? userLocation;
   String? selectedShippingOption;
+  String catatan = "";
   @override
   void initState() {
     super.initState();
@@ -31,6 +32,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   void _loadUserLocation() async {
     final authUser = context.read<AuthService>().currentUser;
+
     if (authUser != null) {
       final locationData = await LocationController().getLocation(authUser.uid);
       if (mounted) {
@@ -47,7 +49,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     num biayaPengiriman = 11000;
     num biayaLayanan = 4000;
-    String catatan = "";
+
     String? name = "";
     String? alamat = "";
     String? nohp = "";
@@ -86,13 +88,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 child: Consumer<AuthService>(
                   builder: (context, auth, _) {
                     final user = auth.currentUser;
-                    name = user?.name;
-                    alamat = user?.alamat;
-                    nohp = user?.nohp;
 
                     if (user == null) {
                       return Center(child: CircularProgressIndicator());
                     }
+                    name = user.name;
+                    alamat = user.alamat;
+                    nohp = user.nohp;
                     uid = user.uid;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,8 +567,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         }
 
                         try {
+                          final isValid =
+                              userLocation != null &&
+                              selectedShippingOption != null &&
+                              sellerUID != null &&
+                              nohp != null &&
+                              name != null &&
+                              alamat != null;
+
+                          if (!isValid) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Lengkapi semua data sebelum checkout",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
                           await cartController.checkout(
                             uid: uid,
+                            name: name!,
+                            nohp: nohp!,
                             alamat: alamat!,
                             lokasi: userLocation!,
                             sellerUID: sellerUID!,
@@ -576,7 +598,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             totalPrice: total,
                           );
 
-                          // Notifikasi berhasil
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -627,7 +648,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       ),
                                     );
                                     debugPrint(
-                                      "✅ Seller UID dikirim ke UserPage: $sellerUID",
+                                      "Seller UID dikirim ke UserPage: $sellerUID",
                                     );
                                   },
                                   child: const Text("Lihat Pesanan Anda"),

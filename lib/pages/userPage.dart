@@ -21,7 +21,7 @@ class _UserPageState extends State<UserPage> {
     final uid = context.read<AuthService>().currentUser?.uid;
 
     if (uid != null) {
-      context.read<OrdersController>().startListening(uid, uid);
+      context.read<OrdersController>().startListening(uid);
     }
   }
 
@@ -40,6 +40,18 @@ class _UserPageState extends State<UserPage> {
         child: Consumer<AuthService>(
           builder: (context, auth, _) {
             final user = auth.currentUser;
+            if (user == null) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "Kamu belum login",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                ),
+              );
+            }
+
             return Column(
               children: [
                 Container(
@@ -208,14 +220,14 @@ class _UserPageState extends State<UserPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              if (user?.role == 'admin') ...[
+                              if (user.role == 'admin') ...[
                                 _iconWithBadge(
                                   icon: Icons.confirmation_num,
                                   label: "Konfiramasi",
                                   badgeCount: ordersController.pendingPayments,
                                   context: context,
                                   status: "pending_payment",
-                                  uid: user!.uid,
+                                  uid: user.uid,
                                   user_role: user.role,
                                 ),
                                 _iconWithBadge(
@@ -223,16 +235,16 @@ class _UserPageState extends State<UserPage> {
                                   label: "Diproses",
                                   badgeCount: ordersController.inProcess,
                                   context: context,
-                                  status: "pending_payment",
+                                  status: "in_process",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
                                 _iconWithBadge(
                                   context: context,
                                   icon: Icons.delivery_dining,
-                                  label: "Mengirim",
+                                  label: "shipped",
                                   badgeCount: ordersController.shipped,
-                                  status: "pending_payment",
+                                  status: "shipped",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
@@ -241,7 +253,7 @@ class _UserPageState extends State<UserPage> {
                                   icon: Icons.check_circle,
                                   label: 'Selesai',
                                   badgeCount: ordersController.completed,
-                                  status: "pending_payment",
+                                  status: "completed",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
@@ -253,7 +265,7 @@ class _UserPageState extends State<UserPage> {
                                   badgeCount: ordersController.pendingPayments,
                                   context: context,
                                   status: "pending_payment",
-                                  uid: user!.uid,
+                                  uid: user.uid,
                                   user_role: user.role,
                                 ),
                                 // Diproses
@@ -262,7 +274,7 @@ class _UserPageState extends State<UserPage> {
                                   label: 'Diproses',
                                   badgeCount: ordersController.inProcess,
                                   context: context,
-                                  status: "pending_payment",
+                                  status: "in_process",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
@@ -272,7 +284,7 @@ class _UserPageState extends State<UserPage> {
                                   label: 'Dikirim',
                                   badgeCount: ordersController.shipped,
                                   context: context,
-                                  status: "pending_payment",
+                                  status: "shipped",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
@@ -282,7 +294,7 @@ class _UserPageState extends State<UserPage> {
                                   label: 'Selesai',
                                   badgeCount: ordersController.completed,
                                   context: context,
-                                  status: "pending_payment",
+                                  status: "completed",
                                   uid: user.uid,
                                   user_role: user.role,
                                 ),
@@ -502,7 +514,8 @@ Widget _iconWithBadge({
         onPressed: (() => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrderDetailPage(status: status),
+            builder: (context) =>
+                OrderDetailPage(status: status, uid: uid, userRole: user_role),
           ),
         )),
       ),
