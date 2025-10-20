@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:project_umkm/component/formatNumber.component.dart';
+import 'package:project_umkm/component/notification.component.dart';
 import 'package:project_umkm/controller/cart.controller.dart';
 import 'package:project_umkm/controller/location.controller.dart';
 import 'package:project_umkm/controller/users.controller.dart';
@@ -14,7 +15,7 @@ class CheckoutPage extends StatefulWidget {
   final List<Map<String, dynamic>> data;
   final num totalPrice;
 
-  const CheckoutPage({super.key, required this.data, required this.totalPrice});
+  CheckoutPage({super.key, required this.data, required this.totalPrice});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -24,6 +25,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   LatLng? userLocation;
   String? selectedShippingOption;
   String catatan = "";
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +48,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     CartController cartController = CartController();
-
     num biayaPengiriman = 11000;
     num biayaLayanan = 4000;
 
@@ -212,6 +213,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         context,
                                         userLocation!,
                                         'admin',
+                                        maxDistanceKm: 5,
                                       );
 
                                   if (usercontroller.users.isEmpty) {
@@ -250,6 +252,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       }).toList(),
                                     ),
                                   );
+
                                   if (selected != null) {
                                     usercontroller.selectUser(selected);
                                     sellerUID = selected.uid;

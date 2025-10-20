@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_umkm/controller/cart.controller.dart';
 import 'package:project_umkm/controller/form.controller.dart';
+import 'package:project_umkm/pages/loginPage.dart';
 import 'package:provider/provider.dart';
 import 'package:project_umkm/component/contact.component.dart';
 import 'package:project_umkm/component/cart.component.dart';
@@ -183,9 +184,31 @@ class _DetailPageProdukState extends State<DetailPageProduk> {
                         final currentUser = authService.currentUser;
 
                         if (currentUser == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Kamu harus login terlebih dahulu"),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Belum Login"),
+                              content: const Text(
+                                "Kamu harus login terlebih dahulu untuk menambahkan produk ke keranjang.",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Batal"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => loginPage(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Login"),
+                                ),
+                              ],
                             ),
                           );
                           return;

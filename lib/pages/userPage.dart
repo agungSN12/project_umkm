@@ -4,6 +4,7 @@ import 'package:project_umkm/component/navbar.component.dart';
 import 'package:project_umkm/controller/orders.controller.dart';
 import 'package:project_umkm/pages/orderDetail.dart';
 import 'package:project_umkm/services/auth.service.dart';
+import 'package:project_umkm/services/firestore.service.dart';
 import 'package:provider/provider.dart';
 
 class UserPage extends StatefulWidget {
@@ -15,10 +16,19 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _alamatController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final FirestoreService firestoreService = FirestoreService();
   @override
   void initState() {
     super.initState();
     final uid = context.read<AuthService>().currentUser?.uid;
+    final user = context.read<AuthService>().currentUser;
+    if (user != null) {
+      _alamatController.text = user.alamat ?? '';
+      _phoneController.text = user.nohp ?? '';
+    }
 
     if (uid != null) {
       context.read<OrdersController>().startListening(uid);
@@ -28,6 +38,8 @@ class _UserPageState extends State<UserPage> {
   @override
   void dispose() {
     context.read<OrdersController>().stopListening();
+    _alamatController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -383,6 +395,109 @@ class _UserPageState extends State<UserPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF6D4C41),
                           foregroundColor: Colors.white,
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Update Alamat & No HP",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _alamatController,
+                                decoration: const InputDecoration(
+                                  labelText: "Alamat Detail",
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Alamat tidak boleh kosong";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                decoration: const InputDecoration(
+                                  labelText: "Nomor HP",
+
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Nomor HP tidak boleh kosong";
+                                  }
+                                  if (!RegExp(
+                                    r'^\+?\d{10,15}$',
+                                  ).hasMatch(value)) {
+                                    return "Format nomor HP tidak valid";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    try {
+                                      final dataToUpdate = {
+                                        "alamat": _alamatController.text.trim(),
+                                        "nohp": _phoneController.text.trim(),
+                                      };
+                                      await firestoreService.setData(
+                                        collectionName: "users",
+                                        data: dataToUpdate,
+                                        docId: user.uid,
+                                      );
+
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Data berhasil diperbarui",
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (error) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "Gagal memperbarui data: $error",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6D4C41),
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 50),
+                                ),
+                                child: const Text("Simpan"),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

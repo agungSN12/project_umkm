@@ -46,13 +46,14 @@ class userController extends ChangeNotifier {
   Future<void> fetchUsersByRoleSortedByDistance(
     BuildContext context,
     LatLng customerLocation,
-    String role,
-  ) async {
+    String role, {
+    double maxDistanceKm = 5,
+  }) async {
     final auth = Provider.of<AuthService>(context, listen: false);
     _users = await auth.fetchUsersByRole(role);
     List<Map<String, dynamic>> usersWithDistance = [];
 
-    for (var user in users) {
+    for (var user in _users) {
       LatLng? sellerLocation = await LocationController().getLocation(user.uid);
       if (sellerLocation != null) {
         double distance = _calculateDistance(
@@ -61,7 +62,11 @@ class userController extends ChangeNotifier {
           sellerLocation.latitude,
           sellerLocation.longitude,
         );
-        usersWithDistance.add({'user': user, 'distance': distance});
+
+        // hanya tambahkan user jika jaraknya kurang dari maxDistanceKm
+        if (distance <= maxDistanceKm) {
+          usersWithDistance.add({'user': user, 'distance': distance});
+        }
       }
     }
 
