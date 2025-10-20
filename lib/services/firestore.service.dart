@@ -71,9 +71,14 @@ class FirestoreService {
     required String uid,
     String? sellerUID,
   }) {
-    return FirebaseFirestore.instance
-        .collection(collectionName)
-        .where('uid', isEqualTo: uid)
-        .snapshots();
+    final collection = FirebaseFirestore.instance.collection(collectionName);
+
+    if (sellerUID != null && sellerUID.isNotEmpty) {
+      print("Ambil data untuk SELLER dengan UID: $sellerUID");
+      return collection.where('seller', isEqualTo: sellerUID).snapshots();
+    }
+
+    print("Ambil data untuk USER dengan UID: $uid");
+    return collection.where('uid', isEqualTo: uid).snapshots();
   }
 }

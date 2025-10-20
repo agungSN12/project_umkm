@@ -580,8 +580,37 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Text("Pesanan Berhasil"),
-                              content: const Text("Pesanan berhasil dibuat!"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 20,
+                                horizontal: 20,
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                    size: 80,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    "Pesanan Berhasil",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    "Pesanan berhasil dibuat!",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                              actionsAlignment: MainAxisAlignment.center,
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
@@ -596,6 +625,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         builder: (context) =>
                                             UserPage(seller_uid: sellerUID),
                                       ),
+                                    );
+                                    debugPrint(
+                                      "✅ Seller UID dikirim ke UserPage: $sellerUID",
                                     );
                                   },
                                   child: const Text("Lihat Pesanan Anda"),

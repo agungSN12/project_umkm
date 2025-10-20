@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_umkm/component/location.component.dart';
 import 'package:project_umkm/component/navbar.component.dart';
 import 'package:project_umkm/controller/orders.controller.dart';
+import 'package:project_umkm/pages/orderDetail.dart';
 import 'package:project_umkm/services/auth.service.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,7 @@ class _UserPageState extends State<UserPage> {
     final uid = context.read<AuthService>().currentUser?.uid;
 
     if (uid != null) {
-      context.read<OrdersController>().startListening(uid, widget.seller_uid);
+      context.read<OrdersController>().startListening(uid, uid);
     }
   }
 
@@ -32,8 +33,6 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ordersController = Provider.of<OrdersController>(context);
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 235, 234, 234),
 
@@ -210,53 +209,41 @@ class _UserPageState extends State<UserPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               if (user?.role == 'admin') ...[
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.confirmation_num,
-                                        color: Color(0xFF6D4C41),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    const Text('Konfirmasi'),
-                                  ],
+                                _iconWithBadge(
+                                  icon: Icons.confirmation_num,
+                                  label: "Konfiramasi",
+                                  badgeCount: ordersController.pendingPayments,
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user!.uid,
+                                  user_role: user.role,
                                 ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.hourglass_bottom,
-                                        color: Color(0xFF6D4C41),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    const Text('diproses'),
-                                  ],
+                                _iconWithBadge(
+                                  icon: Icons.hourglass_bottom,
+                                  label: "Diproses",
+                                  badgeCount: ordersController.inProcess,
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delivery_dining,
-                                        color: Color(0xFF6D4C41),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    const Text('Mengirim'),
-                                  ],
+                                _iconWithBadge(
+                                  context: context,
+                                  icon: Icons.delivery_dining,
+                                  label: "Mengirim",
+                                  badgeCount: ordersController.shipped,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.check_circle,
-                                        color: Color(0xFF6D4C41),
-                                      ),
-                                      onPressed: () {},
-                                    ),
-                                    const Text('Selesai'),
-                                  ],
+                                _iconWithBadge(
+                                  context: context,
+                                  icon: Icons.check_circle,
+                                  label: 'Selesai',
+                                  badgeCount: ordersController.completed,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
                               ] else ...[
                                 // Bayar
@@ -264,28 +251,40 @@ class _UserPageState extends State<UserPage> {
                                   icon: Icons.attach_money,
                                   label: 'Bayar',
                                   badgeCount: ordersController.pendingPayments,
-                                  onPressed: () {},
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user!.uid,
+                                  user_role: user.role,
                                 ),
                                 // Diproses
                                 _iconWithBadge(
                                   icon: Icons.hourglass_bottom,
                                   label: 'Diproses',
                                   badgeCount: ordersController.inProcess,
-                                  onPressed: () {},
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
                                 // Dikirim
                                 _iconWithBadge(
                                   icon: Icons.delivery_dining,
                                   label: 'Dikirim',
                                   badgeCount: ordersController.shipped,
-                                  onPressed: () {},
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
                                 // Selesai
                                 _iconWithBadge(
                                   icon: Icons.check_circle,
                                   label: 'Selesai',
                                   badgeCount: ordersController.completed,
-                                  onPressed: () {},
+                                  context: context,
+                                  status: "pending_payment",
+                                  uid: user.uid,
+                                  user_role: user.role,
                                 ),
                               ],
                             ],
@@ -468,10 +467,13 @@ class _UserPageState extends State<UserPage> {
 }
 
 Widget _iconWithBadge({
+  required context,
   required IconData icon,
   required String label,
   required int badgeCount,
-  required VoidCallback onPressed,
+  required String status,
+  required String uid,
+  required String user_role,
 }) {
   return Column(
     children: [
@@ -497,7 +499,12 @@ Widget _iconWithBadge({
               ),
           ],
         ),
-        onPressed: onPressed,
+        onPressed: (() => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderDetailPage(status: status),
+          ),
+        )),
       ),
       Text(label),
     ],

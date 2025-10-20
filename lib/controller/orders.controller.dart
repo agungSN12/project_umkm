@@ -41,11 +41,68 @@ class OrdersController with ChangeNotifier {
             }
           }
 
-          notifyListeners(); // agar UI update
+          notifyListeners();
         });
   }
 
   void stopListening() {
     _subscription?.cancel();
+  }
+
+  Stream<QuerySnapshot> getOrdersByStatus({
+    required String uid,
+    String? sellerUID,
+    required String status,
+  }) {
+    final collection = FirebaseFirestore.instance.collection("orders");
+
+    Query query = collection;
+
+    if (sellerUID != null && sellerUID.isNotEmpty) {
+      query = query.where('seller', isEqualTo: sellerUID);
+    } else {
+      query = query.where('uid', isEqualTo: uid);
+    }
+
+    query = query.where('status', isEqualTo: status);
+
+    print("=== DEBUG ORDER DETAIL PAGE ===");
+    print("UID: $uid");
+    print("STATUS: $status");
+
+    return query.snapshots();
+  }
+
+  Stream<QuerySnapshot> getAllOrders({required String uid, String? sellerUID}) {
+    return firestoreService.getByUser(
+      collectionName: "orders",
+      uid: uid,
+      sellerUID: sellerUID,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchOrdersOnce({
+    required String uid,
+    String? sellerUID,
+    String? status,
+  }) async {
+    final collection = FirebaseFirestore.instance.collection("orders");
+    Query query = collection;
+
+    if (sellerUID != null && sellerUID.isNotEmpty) {
+      query = query.where('seller', isEqualTo: sellerUID);
+    } else {
+      query = query.where('uid', isEqualTo: uid);
+    }
+
+    if (status != null && status.isNotEmpty) {
+      query = query.where('status', isEqualTo: status);
+    }
+
+    final snapshot = await query.get();
+
+    return snapshot.docs.map((doc) {
+      return {"id": doc.id, ...doc.data() as Map<String, dynamic>};
+    }).toList();
   }
 }
